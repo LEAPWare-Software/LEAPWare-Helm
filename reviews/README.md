@@ -11,7 +11,7 @@ never `human`) that touches a shared path — `core/`, `scripts/`, `.github/`,
 `README.md` — needs BOTH `reviews/<pr>/claude-cto.json` and
 `reviews/<pr>/codex-cto.json` present, each with `"verdict": "AGREE"`,
 before `scripts/lwh_lanes.py` (the `lwh-lanes` CI job) passes. Bootstrap
-exception: enforced only for PR numbers greater than 4 — see
+exception: enforced only for PR numbers greater than 5 — see
 `scripts/lwh_lanes.py`'s module docstring.
 
 ## Record shape (see `schema.json`)

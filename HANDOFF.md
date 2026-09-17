@@ -22,11 +22,12 @@ step *n* is done and proven.
 
 1. Work from this repo only. Clone fresh on any machine; no dependence on
    the local environment. **SACRED.**
-2. Bootstrap PR (branch `fix/lwh-d0-vendor-committed`, containing D0, D1,
-   D2) is not yet merged — the setup session could not merge it. Enable
-   auto-merge / add it to the merge queue (squash) once its required
-   checks are green. The merge happens through GitHub's merge queue,
-   never a local merge.
+2. Bootstrap PR #5 (branch `lwh-bootstrap`, containing D0, D1, D2 —
+   replaces the earlier #4/`fix/lwh-d0-vendor-committed`, whose history
+   was cleaned by owner decision) is not yet merged — the setup session
+   could not merge it. Enable auto-merge / add it to the merge queue
+   (squash) once its required checks are green. The merge happens
+   through GitHub's merge queue, never a local merge.
 3. Create the two GitHub Apps (`lwh-claude`, `lwh-codex`) from the
    committed manifests in `.github/apps/`, using a browser-enabled
    session. Install each on this repo only. Store each private key in the
@@ -42,12 +43,13 @@ step *n* is done and proven.
 
 <!-- lwh-handoff:begin -->
 
-Generated: 2026-09-17 13:32 UTC
+Generated: 2026-09-17 14:09 UTC
 main SHA: 6ac5c2b79fbd33bd8d43a59c5d256949022be7ab
 CLI: claude
-Session: lwh-d1b-20260917T133241Z
+Session: lwh-bootstrap-pr-cleanup
 
 Open PRs:
+#5 Bootstrap LWH repository setup (D0-D2) (lwh-bootstrap)
 #4 fix(build): commit vendor/ trees, pin line endings via .gitattributes (fix/lwh-d0-vendor-committed)
 #3 chore(deps): Bump actions/checkout from 5 to 7 (dependabot/github_actions/actions/checkout-7)
 #2 chore(deps): Bump actions/setup-python from 6 to 7 (dependabot/github_actions/actions/setup-python-7)

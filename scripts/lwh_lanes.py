@@ -25,8 +25,8 @@ not under a `claude/`/`codex/` subdirectory, and the literal glob alone
 would strand them in neither lane nor the shared list.
 
 Bootstrap exception: lane enforcement (this module's `check_lanes`, wired
-into the `lwh-lanes` CI job) is a no-op for PR numbers 1-4 — the PR that
-introduced this system could not have satisfied it before it existed. PR 5
+into the `lwh-lanes` CI job) is a no-op for PR numbers 1-5 — the PR that
+introduced this system could not have satisfied it before it existed. PR 6
 onward is enforced. `--pr-number` with no value, or 0, means "not running
 under a PR" (e.g. a push to main after merge) and is also skipped, since
 lane enforcement is a pre-merge PR gate, not a post-merge one.
@@ -54,7 +54,7 @@ SHARED_PREFIXES = (
 )
 SHARED_FILES = ("HANDOFF.md", "AGENTS.md", "CLAUDE.md", "README.md")
 
-BOOTSTRAP_LAST_EXEMPT_PR = 4
+BOOTSTRAP_LAST_EXEMPT_PR = 5
 
 TRAILER_RE = re.compile(r"^LWH-Agent:\s*(claude|codex|human)\s*$", re.MULTILINE)
 
