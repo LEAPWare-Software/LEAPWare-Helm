@@ -16,6 +16,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
@@ -27,14 +29,43 @@ jobs:
       - name: Unit / adapter / conformance tests
         run: python -m pytest -q
 
-      - name: Vendor drift check (scripts/build.py --check)
-        run: python scripts/build.py --check
+      - name: Vendor drift check (scripts/lwh_build.py --check)
+        run: python scripts/lwh_build.py --check
 
       - name: Build vendor trees for validators
-        run: python scripts/build.py
+        run: python scripts/lwh_build.py
 
       - name: Validate Claude Code plugin
-        run: python scripts/validate_claude_plugin.py
+        run: python scripts/lwh_validate_claude_plugin.py
 
       - name: Validate Codex plugin
-        run: python scripts/validate_codex_plugin.py
+        run: python scripts/lwh_validate_codex_plugin.py
+
+      - name: lwh-prefix (every user-facing entrypoint starts with lwh)
+        run: python scripts/lwh_check_prefix.py
+
+      - name: lwh-env-leak (no local-environment or private-project leak)
+        run: python scripts/lwh_check_env_leak.py
+
+      - name: HANDOFF.md shape check
+        run: python scripts/lwh_handoff.py --check
+
+      - name: lwh-commit-identity (LEAPWare or an allow-listed bot only)
+        if: github.event_name == 'pull_request'
+        run: python scripts/lwh_check_commit_identity.py --base origin/${{ github.base_ref }} --head HEAD
+
+  lwh-portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run the Claude hook exactly as hooks.json declares it
+        run: python scripts/lwh_check_hook_launch.py

@@ -7,11 +7,11 @@ body:
     attributes:
       label: Component
       options:
-        - core (helm_core engine / rules)
+        - core (lwh_core engine / rules)
         - adapters/claude
         - adapters/codex
-        - plugins/claude/helm
-        - plugins/codex/helm
+        - plugins/claude/lwh
+        - plugins/codex/lwh
         - scripts (build/validate/release)
         - docs
     validations:

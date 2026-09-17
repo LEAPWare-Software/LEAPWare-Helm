@@ -4,7 +4,7 @@ merge-method settings allow what that ruleset requires.
 This is the LWH-D0 ordering bug: a ruleset requiring squash merges (via a
 `pull_request` or `merge_queue` rule) fails on GitHub with a 422 if
 `allow_squash_merge` is still false on the repo. The fix is to run the
-settings PATCH first; this test locks in that scripts/apply_rulesets.py
+settings PATCH first; this test locks in that scripts/lwh_apply_rulesets.py
 catches the wrong order itself, with a clear message, rather than letting
 the 422 be the first anyone hears of it.
 """

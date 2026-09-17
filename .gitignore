@@ -10,7 +10,7 @@ dist/
 # Runtime state a plugin install writes; never part of the shipped tree.
 *.jsonl
 state/
-plugins/*/helm/state/
+plugins/*/lwh/state/
 
 # Python
 __pycache__/

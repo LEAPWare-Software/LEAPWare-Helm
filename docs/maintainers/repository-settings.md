@@ -17,9 +17,10 @@ visible by clicking through repo Settings.
 - **`deletion`** — `main` cannot be deleted.
 - **`non_fast_forward`** — no force-push to `main`, ever.
 - **`pull_request`** — every change to `main` goes through a PR:
-  `required_approving_review_count: 0` (this repo's review protocol is a
-  documented review record, not a GitHub-approval click — see the parent
-  leapware-cpt project's GOVERNANCE.md for why), `dismiss_stale_reviews_on_push:
+  `required_approving_review_count: 0` (this repo's own review protocol is a
+  documented review record — `reviews/<pr-number>/<agent>-cto.json` — not a
+  GitHub-approval click, so GitHub's own count stays at zero on purpose),
+  `dismiss_stale_reviews_on_push:
   true` (a new push invalidates a stale approval), `allowed_merge_methods:
   ["squash"]` (squash-only: one commit per PR on `main`, no merge commits, no
   rebase-merge).
@@ -40,8 +41,8 @@ visible by clicking through repo Settings.
 
 ```
 gh auth login            # once, if not already authenticated
-python scripts/apply_rulesets.py --dry-run   # inspect the JSON that would be sent
-python scripts/apply_rulesets.py             # create or update by name
+python scripts/lwh_apply_rulesets.py --dry-run   # inspect the JSON that would be sent
+python scripts/lwh_apply_rulesets.py             # create or update by name
 ```
 
 `apply_rulesets.py` reads every `.github/rulesets/*.json` file, looks up

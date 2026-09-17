@@ -1,8 +1,8 @@
 # Installing helm on Codex CLI
 
 **This plugin ships reporting-only. It registers no enforcing hook.** It
-installs `skills/helm-config` and `skills/helm-report`, both backed by the
-same `helm_core` engine and policy format the Claude Code plugin uses, via
+installs `skills/lwh-config` and `skills/lwh-report`, both backed by the
+same `lwh_core` engine and policy format the Claude Code plugin uses, via
 `adapters/codex/hook_io.py`.
 
 ## Why reporting-only — the recon this decision rests on
@@ -69,8 +69,8 @@ Given (1) a mandatory manual per-hook trust step that defeats "mechanical,
 no-prompting enforcement" as a design goal, (2) an unresolved and
 undocumented manifest shape, and (3) conflicting evidence on default
 platform support — this project ships **no `hooks/hooks.json`** for Codex.
-See `plugins/codex/helm/hooks/README.md` for the same reasoning kept next
-to the empty directory it explains, and `scripts/validate_codex_plugin.py`,
+See `plugins/codex/lwh/hooks/README.md` for the same reasoning kept next
+to the empty directory it explains, and `scripts/lwh_validate_codex_plugin.py`,
 which actively fails if a `hooks/hooks.json` is ever added without this
 decision being revisited.
 
@@ -85,9 +85,9 @@ decision being revisited.
 
 ## What IS installed
 
-- `skills/helm-config/SKILL.md` — read/edit the active policy file (same
+- `skills/lwh-config/SKILL.md` — read/edit the active policy file (same
   format as Claude Code's, see `docs/policy.md`).
-- `skills/helm-report/SKILL.md` — run the same engine over a described
+- `skills/lwh-report/SKILL.md` — run the same engine over a described
   action and report what it WOULD have decided, via
   `adapters/codex/hook_io.render_report`. This never blocks anything; it is
   Codex's substitute for the enforcing hook Claude Code gets.
@@ -97,5 +97,5 @@ decision being revisited.
 If a future Codex release resolves the trust-gate friction and documents
 the manifest shape, `adapters/codex/hook_io.py` should gain a
 `render_decision` mirroring `adapters/claude/hook_io.py`'s, and
-`plugins/codex/helm/hooks/hooks.json` should be added — see the note at the
-end of `plugins/codex/helm/hooks/README.md`.
+`plugins/codex/lwh/hooks/hooks.json` should be added — see the note at the
+end of `plugins/codex/lwh/hooks/README.md`.

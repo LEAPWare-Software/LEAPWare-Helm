@@ -8,9 +8,9 @@ follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Initial scaffold: `helm_core` pure engine (`Event` -> `Decision`), the
+- Initial scaffold: `lwh_core` pure engine (`Event` -> `Decision`), the
   `budget_line` walking-skeleton rule, the Claude Code adapter and plugin
   (enforcing `PreToolUse` hook), the Codex adapter and plugin
-  (reporting-only — see `docs/install-codex.md`), `scripts/build.py`
+  (reporting-only — see `docs/install-codex.md`), `scripts/lwh_build.py`
   (vendoring), both plugin validators, and the unit / adapter / conformance
   test suite.

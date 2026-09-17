@@ -4,17 +4,17 @@
 
 1. In Claude Code, add this repository as a marketplace source pointing at
    `.claude-plugin/marketplace.json` (root of this repo), or add
-   `plugins/claude/helm` directly as a local plugin path, per Claude Code's
+   `plugins/claude/lwh` directly as a local plugin path, per Claude Code's
    own plugin-development docs.
-2. Before installing, run `py -3.12 scripts/build.py` from the repo root so
-   `plugins/claude/helm/vendor/` contains a current copy of `helm_core` and
+2. Before installing, run `python scripts/lwh_build.py` from the repo root so
+   `plugins/claude/lwh/vendor/` contains a current copy of `lwh_core` and
    `adapters/claude` — the plugin cannot import from outside its own
    directory once installed.
 3. Enable the `helm` plugin.
 
 ## What it registers
 
-One hook, in `plugins/claude/helm/hooks/hooks.json`:
+One hook, in `plugins/claude/lwh/hooks/hooks.json`:
 
 ```json
 {
@@ -22,8 +22,7 @@ One hook, in `plugins/claude/helm/hooks/hooks.json`:
   "hooks": [
     {
       "type": "command",
-      "command": "python",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/helm_hook.py"]
+      "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/bin/lwh_hook.py\" || python \"${CLAUDE_PLUGIN_ROOT}/bin/lwh_hook.py\""
     }
   ]
 }
@@ -34,11 +33,15 @@ own hooks documentation and LW-WATCHTOWER's `hooks/hooks.json` (this
 project's sibling plugin) both use for a plugin's own install directory;
 confirmed by reading the sibling LW-WATCHTOWER plugin's own
 `lw-watchtower/hooks/hooks.json` during this project's recon, where every
-one of its fifteen hook registrations uses the same variable.
+one of its fifteen hook registrations uses the same variable. The
+`python3 ... || python ...` form is this project's own portable
+dual-interpreter launch — see `docs/architecture.md#the-hook-launch-method`
+for why it is safe (this hook always exits `0` and signals its decision on
+stdout, never via exit code) and for the official docs consulted.
 
 ## What it does on each dispatch
 
-`plugins/claude/helm/bin/helm_hook.py` reads the `PreToolUse` JSON from
+`plugins/claude/lwh/bin/lwh_hook.py` reads the `PreToolUse` JSON from
 stdin, evaluates it against the active policy (see `docs/policy.md`), and
 writes a JSON decision to stdout:
 
@@ -50,7 +53,7 @@ writes a JSON decision to stdout:
   carrying any `warn`-mode findings (visible, non-blocking).
 
 Every evaluated event is also appended as one JSON line to a ledger file —
-see `docs/rules/budget-line.md` and `helm-report`'s `SKILL.md` for how to
+see `docs/rules/budget-line.md` and `lwh-report`'s `SKILL.md` for how to
 read it.
 
 ## Hook event JSON shapes referenced
