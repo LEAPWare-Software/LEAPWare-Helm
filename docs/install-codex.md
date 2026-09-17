@@ -1,101 +1,95 @@
-# Installing helm on Codex CLI
+# Installing tokenwise on Codex CLI
 
-**This plugin ships reporting-only. It registers no enforcing hook.** It
-installs `skills/helm-config` and `skills/helm-report`, both backed by the
-same `helm_core` engine and policy format the Claude Code plugin uses, via
-`adapters/codex/hook_io.py`.
+The Codex plugin now ships the same enforcement the Claude Code plugin
+does: an enforcing `PreToolUse` hook (`hooks/hooks.json`, running
+`bin/lwt_hook.py`), backed by the same `lwt_core` engine and policy format,
+via `adapters/codex/hook_io.py`. It also installs `skills/lwt-config` and
+`skills/lwt-report`, unchanged in purpose (inspect policy / preview a
+decision) now that the hook itself enforces.
 
-## Why reporting-only — the recon this decision rests on
+## Why this is enforcing now — the recon this decision rests on
 
-The owner's standing instruction for this project: *"if Codex plugins
-cannot register hooks, the Codex plugin ships reporting-only (skills +
-ledger), and says so plainly in docs."* This section is that plain
-statement, with sources.
+The owner's standing instruction for this project: *"Codex supports hooks,
+so full enforcement on both; no reporting-only constraint."* This section
+records the recon that confirms that instruction is buildable, superseding
+an earlier reporting-only decision made under an unresolved manifest-shape
+question (see git history of this file for that earlier text, and
+`plugins/codex/lwt/hooks/README.md` for the same "why this changed" note
+kept next to the hook it now explains).
 
-### What Codex CLI hook support looks like today (checked September 2026)
+### What Codex CLI hook support looks like (checked September 2026, direct doc fetch)
 
-`codex` is not installed on the machine this scaffold was built on
-(`which codex` / `codex --help` both failed), so this could not be verified
-against a running CLI. Two web sources were checked instead, and they did
-not fully agree:
-
-**A general web search** returned a summary describing Codex hook support
-as: added via PR
-[`openai/codex#19705`](https://github.com/openai/codex/pull/19705)
-("Discover hooks bundled with plugins"); gated behind a `plugin_hooks`
-feature flag; **experimental, disabled by default, and "not available on
-Windows"** per that summary's characterization of the underlying hooks
-feature (first shipped v0.114, March 2026). It also states: *"Installing or
-enabling a plugin doesn't automatically trust its hooks; Codex skips
-plugin-bundled hooks until you review and trust the current hook
-definition. ... Use `/hooks` in the CLI to inspect hook sources, review new
-or changed hooks, trust hooks, or disable individual non-managed hooks."*
-Related: [`openai/codex#16430`](https://github.com/openai/codex/issues/16430)
-documents an earlier gap where plugin-local `hooks/hooks.json` was
-advertised but not actually loaded by the runtime, since fixed by the PR
-above.
-
-**A direct fetch of the canonical docs page**
+A direct fetch of the canonical docs page
 (`https://developers.openai.com/codex/hooks`, which 308-redirects to
-`https://learn.chatgpt.com/docs/hooks`) returned a **different picture**:
-hooks (canonical flag `hooks`, with `codex_hooks` kept as a deprecated
-alias) are **"enabled by default"**, and the page states the feature "works
-on Windows" with platform-specific overrides (`commandWindows`,
-`windows_managed_dir`) for managed hooks. It also confirms plugin-bundled
-hook discovery: *"Codex can load lifecycle hooks from that plugin alongside
-user, project, and managed hooks."*
+`https://learn.chatgpt.com/docs/hooks`) resolved every open question the
+earlier recon left:
 
-**These two readings disagree on default-enablement and Windows support,
-and this project could not resolve the disagreement independently** (no
-local `codex` binary, no second corroborating source checked). What both
-readings agree on:
+- **Hooks are enabled by default.** Disable with `[features] hooks = false`
+  in config — this plugin relies on the default.
+- **Windows is supported**, via a `commandWindows` field on a hook handler
+  for a platform-specific command override (this plugin's
+  `hooks/hooks.json` uses it) and a separate `windows_managed_dir` for
+  enterprise-managed hooks (not used here).
+- **Plugin-bundled hooks are documented.** A plugin's `.codex-plugin/plugin.json`
+  declares a `hooks` field, either a path to a `hooks/hooks.json` file
+  (the shape this plugin uses: `"hooks": "./hooks/hooks.json"`) or an
+  inline array. `hooks/hooks.json` itself organizes as event → matcher
+  group → handler, the same three-level shape as a Claude Code plugin's
+  `hooks/hooks.json`.
+- **`PreToolUse`'s decision shape matches Claude Code's exactly**: a
+  handler's stdout JSON carries
+  `hookSpecificOutput.permissionDecision` (`"allow"` or `"deny"`,
+  `permissionDecisionReason` for either), and a handler receives the same
+  family of stdin fields (`session_id`, `cwd`, `hook_event_name`, ...).
+  This is why `adapters/codex/hook_io.render_decision` is a straight port
+  of `adapters/claude/hook_io.render_decision` rather than a new shape.
+- **Plugin hooks receive `PLUGIN_ROOT`** (the installed plugin directory)
+  and `PLUGIN_DATA` (a writable per-plugin data directory) as environment
+  variables — the Codex equivalents of Claude Code's `CLAUDE_PLUGIN_ROOT`
+  and `CLAUDE_PLUGIN_DATA`, used the same way in `bin/lwt_hook.py`.
+- **Trust step**: a plugin-bundled ("non-managed") hook still requires a
+  user to review and trust it via `/hooks` before its first execution.
+  That is a real UX step this project cannot remove, but it is a one-time
+  install-time step, not a per-session gate that would defeat "mechanical,
+  no-prompting enforcement" as a design goal — so it is not grounds to
+  withhold the hook, only to document it (see
+  `plugins/codex/lwt/hooks/README.md`).
 
-1. Plugin-bundled hooks are a genuinely new capability, not something
-   stably available across the period this ecosystem has existed.
-2. A plugin-bundled hook is **not auto-trusted** — a human must review and
-   trust each hook definition via `/hooks` before Codex will run it, at
-   least for "non-managed" hooks (which a locally-installed plugin's would
-   be). That is fundamentally different from a Claude Code plugin's hook,
-   which runs on install with no separate per-hook trust step.
-3. **The exact `plugin.json` manifest field shape for declaring hooks was
-   not found in either source.** A direct fetch of
-   `https://developers.openai.com/codex/plugins` (redirecting to
-   `https://learn.chatgpt.com/docs/plugins`) explicitly could not locate a
-   documented schema for it.
-
-### The decision this recon supports
-
-Given (1) a mandatory manual per-hook trust step that defeats "mechanical,
-no-prompting enforcement" as a design goal, (2) an unresolved and
-undocumented manifest shape, and (3) conflicting evidence on default
-platform support — this project ships **no `hooks/hooks.json`** for Codex.
-See `plugins/codex/helm/hooks/README.md` for the same reasoning kept next
-to the empty directory it explains, and `scripts/validate_codex_plugin.py`,
-which actively fails if a `hooks/hooks.json` is ever added without this
-decision being revisited.
+An earlier recon pass (general web search plus the same canonical-docs
+fetch) had read these two sources as disagreeing on default-enablement and
+Windows support, and could not locate the manifest shape at all. Re-fetching
+the canonical docs page directly, quoted above, resolves that disagreement
+in the canonical page's favor and supplies the manifest shape that was
+previously missing.
 
 ### Sources checked
 
-- https://github.com/openai/codex/pull/19705
-- https://github.com/openai/codex/issues/16430
 - https://developers.openai.com/codex/hooks (redirects to
-  https://learn.chatgpt.com/docs/hooks)
+  https://learn.chatgpt.com/docs/hooks) — hook events, handler fields,
+  stdin/stdout schema, plugin-bundled hooks, default-enabled state,
+  Windows support.
 - https://developers.openai.com/codex/plugins (redirects to
-  https://learn.chatgpt.com/docs/plugins)
+  https://learn.chatgpt.com/docs/plugins) — plugin manifest shape.
 
 ## What IS installed
 
-- `skills/helm-config/SKILL.md` — read/edit the active policy file (same
+- `hooks/hooks.json` — one `PreToolUse` hook, matcher `Agent`, running
+  `bin/lwt_hook.py` via `${PLUGIN_ROOT}`, with a `commandWindows` override.
+- `bin/lwt_hook.py` — reads stdin, evaluates the event through the shared
+  engine, appends one ledger line under `${PLUGIN_DATA}`, writes the
+  decision to stdout.
+- `skills/lwt-config/SKILL.md` — read/edit the active policy file (same
   format as Claude Code's, see `docs/policy.md`).
-- `skills/helm-report/SKILL.md` — run the same engine over a described
-  action and report what it WOULD have decided, via
-  `adapters/codex/hook_io.render_report`. This never blocks anything; it is
-  Codex's substitute for the enforcing hook Claude Code gets.
+- `skills/lwt-report/SKILL.md` — run the same engine over a described
+  action and report the decision in plain language, useful for previewing
+  a policy change without waiting for a real dispatch to hit the hook.
 
-## Revisiting this
+## Conformance with the Claude Code plugin
 
-If a future Codex release resolves the trust-gate friction and documents
-the manifest shape, `adapters/codex/hook_io.py` should gain a
-`render_decision` mirroring `adapters/claude/hook_io.py`'s, and
-`plugins/codex/helm/hooks/hooks.json` should be added — see the note at the
-end of `plugins/codex/helm/hooks/README.md`.
+`tests/conformance/test_same_decision_both_adapters.py` feeds the same
+neutral event through both adapters' `parse_event` and asserts the
+resulting `Decision` (and, for the paired `render_decision` case, the full
+rendered JSON) is identical — proof the engine's behavior does not silently
+change by host. `tests/adapters/fixtures/codex/` holds Codex's own fixture
+event shapes; `tests/adapters/test_codex_hook_io.py` covers
+`render_decision`'s allow/deny/warn shapes directly.

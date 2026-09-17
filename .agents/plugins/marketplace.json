@@ -1,14 +1,14 @@
 {
-  "name": "LEAPWare-Helm",
+  "name": "LEAPWare-TokenWise",
   "interface": {
-    "displayName": "LEAPWare Helm"
+    "displayName": "LEAPWare TokenWise"
   },
   "plugins": [
     {
-      "name": "helm",
+      "name": "lwt",
       "source": {
         "source": "local",
-        "path": "./plugins/codex/helm"
+        "path": "./plugins/codex/lwt"
       },
       "policy": {
         "installation": "AVAILABLE",

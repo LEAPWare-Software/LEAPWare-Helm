@@ -1,9 +1,8 @@
 # Vendored copies are BUILD OUTPUT, not source — scripts/build.py writes
-# them from core/ and adapters/. Keeping them out of git keeps drift
-# impossible to hide: CI always runs scripts/build.py --check against a
-# checkout with none of these present.
-plugins/claude/helm/vendor/
-plugins/codex/helm/vendor/
+# them from core/ and adapters/. They ARE committed (a marketplace/plugin
+# install pulls from git with no build step to run), so scripts/build.py
+# --check in CI compares the committed tree against a fresh build from
+# core/ and adapters/ to catch drift, rather than a missing tree.
 
 # Release artifacts (scripts/release.py).
 dist/
@@ -11,7 +10,7 @@ dist/
 # Runtime state a plugin install writes; never part of the shipped tree.
 *.jsonl
 state/
-plugins/*/helm/state/
+plugins/*/lwt/state/
 
 # Python
 __pycache__/
@@ -48,3 +47,6 @@ id_ed25519*
 Thumbs.db
 desktop.ini
 *.swp
+
+# worktrees live only under .worktrees/ (see AGENTS.md / CLAUDE.md)
+.worktrees/
