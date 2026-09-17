@@ -13,9 +13,9 @@ actually having been run — `checked_by` must be a different identity than
 `author` precisely so a proof record is never self-certified.
 
 This scaffolding session wrote NO proof records — `schema.json`, this
-README, and the validator are the mechanism; the first real record is the
-next deliverable's own proof, written by whoever does that deliverable's
-work.
+README, and the validator are the mechanism. The first real records,
+`LWH-D0.json` and `LWH-D2.json`, were written for those deliverables'
+independent verification; every deliverable after them writes its own.
 
 ## Record shape
 

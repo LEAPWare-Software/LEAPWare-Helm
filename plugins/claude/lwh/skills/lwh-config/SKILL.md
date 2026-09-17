@@ -8,7 +8,7 @@ description: Read or edit lwh's token-policy configuration (which rules are off/
 lwh's policy is one JSON file matching `core/policy/schema.json`: a
 `"rules"` object keyed by rule id, each entry an `off` / `warn` / `deny`
 mode plus optional rule-specific `options`. The bundled default lives at
-`core/policy/default.json` and ships `budget_line` in `warn` mode.
+`core/policy/default.json` and ships `budget_line` in `deny` mode.
 
 ## Reading the active policy
 

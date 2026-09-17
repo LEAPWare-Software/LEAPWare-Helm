@@ -69,8 +69,10 @@ fail-open.
 
 ## The bundled default
 
-`core/policy/default.json` ships `budget_line` in `warn` mode — visible,
-never blocking, until a project or user deliberately opts into `deny`. See
+`core/policy/default.json` ships `budget_line` in `deny` mode — owner
+directive 2 requires mechanical enforcement, so the shipped default blocks
+a dispatch with no BUDGET line rather than merely recording it. A project
+may deliberately opt down to `warn` or `off` in its own policy file. See
 `examples/policies/example-routing.json` for a larger, generic illustration
 of a multi-rule policy shape (not a real deployed policy — see that file's
 own header comment).

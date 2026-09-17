@@ -43,10 +43,10 @@ def test_missing_field_record_is_rejected():
     assert any("unproven" in e for e in errors)
 
 
-def test_real_proof_directory_has_no_records_yet_and_validates_clean():
-    # The real proof/ directory ships with no records (README says so
-    # explicitly); the validator must treat that as a clean, skipped pass,
-    # not a failure.
+def test_real_proof_directory_validates_clean():
+    # The real proof/ directory carries the deliverables' own records
+    # (LWH-D0.json, LWH-D2.json, ...); the validator must find every one of
+    # them clean, not a failure.
     errors, count = lwh_check_proof.validate_all()
     assert errors == []
-    assert count == 0
+    assert count > 0
