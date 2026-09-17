@@ -1,0 +1,68 @@
+{
+  "deliverable": "LWH-D2",
+  "author": "claude implementer (sonnet)",
+  "checked_by": "independent verifier (claude, sonnet)",
+  "commit": "a6aa3b74b356e9dd92052d9aa6c66409afaa4ada",
+  "commands": [
+    {
+      "argv": [
+        "py",
+        "-3",
+        "scripts/lwh_handoff.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "OK: .\\HANDOFF.md passes all checks (4176 bytes)"
+      ],
+      "sha256": "0951563c7427d515a819ba3d2a016734114dcdfcec015c20516c45b0756e1f39"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "-m",
+        "pytest",
+        "tests/core/test_lwh_handoff.py",
+        "-q"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "........................                                                 [100%]",
+        "24 passed in 0.53s"
+      ],
+      "sha256": "b772817aaccddb1258a4f88314303e1a56bb643724525a179890ad98312d4252"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "scripts/lwh_handoff.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expect_exit": 1,
+      "tail": [
+        "FAIL: forbidden pattern found (absolute path): '[A-Za-z]:\\\\\\\\'"
+      ],
+      "sha256": "eb5a70e31770bc841a6e8da641a548ebca34923886c8e55aec92c63fdef6e1e7"
+    }
+  ],
+  "mutations": [
+    "HANDOFF.md",
+    "scripts/lwh_handoff.py",
+    "docs/handoff-protocol.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/owner-directives.md",
+    "docs/requirements/approach.md",
+    "tests/core/test_lwh_handoff.py"
+  ],
+  "unproven": [
+    "17 owner directives present (directive 17, the status-line usage segment, is newly added) -- confirmed by count and by reading the file; did not exercise directive 17's runtime behavior (statusline usage display) since no such component exists yet in this repo.",
+    "PR #5 bundles D0+D1+D2 work in one branch; the mutations[] list above is the D2-relevant subset of a larger diff.",
+    "CI on PR #5 is red on all 6 test-matrix jobs (proof/ has zero records, failing test_real_proof_directory_validates_clean) -- this is the expected/described state per the task, not a defect in D2 itself; it will go green once real proof/*.json records (such as these) are committed to the repo. This verification record is NOT itself committed anywhere."
+  ]
+}

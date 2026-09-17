@@ -1,0 +1,106 @@
+{
+  "deliverable": "LWH-D0",
+  "author": "claude implementer (sonnet)",
+  "checked_by": "independent verifier (claude, sonnet)",
+  "commit": "a6aa3b74b356e9dd92052d9aa6c66409afaa4ada",
+  "commands": [
+    {
+      "argv": [
+        "py",
+        "-3",
+        "-m",
+        "pytest",
+        "tests/test_vendor_committed.py",
+        "-q"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "...                                                                      [100%]",
+        "3 passed in 1.19s"
+      ],
+      "sha256": "2bb67d447184e54fd485681f5c81ec67f628c207ad2efcf4719323e82b4fa132"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "scripts/lwh_check_commit_identity.py"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "lwh-commit-identity check passed"
+      ],
+      "sha256": "08768b738bd8704dc1b7b800b85a1d6a0143384901b237217e4feae1bb073a5f"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "scripts/lwh_apply_rulesets.py",
+        "--dry-run",
+        "--repo",
+        "LEAPWare-Software/LEAPWare-Helm"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "        \"grouping_strategy\": \"ALLGREEN\",",
+        "        \"max_entries_to_build\": 5,",
+        "        \"max_entries_to_merge\": 5,",
+        "        \"merge_method\": \"SQUASH\",",
+        "        \"min_entries_to_merge\": 1,",
+        "        \"min_entries_to_merge_wait_minutes\": 5",
+        "      }",
+        "    }",
+        "  ]",
+        "}"
+      ],
+      "sha256": "960f0869b78e5b2db474cf08cea5c6bcbfc3822ce7b85a8f969b621d1c7dd274"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "-m",
+        "pytest",
+        "tests/test_vendor_committed.py",
+        "-q"
+      ],
+      "exit": 1,
+      "expect_exit": 1,
+      "tail": [
+        "E               assert {'adapters/__...gine.py', ...} == {'adapters/__...gine.py', ...}",
+        "E                 ",
+        "E                 Extra items in the right set:",
+        "E                 'lwh_core/ledger.py'",
+        "E                 Use -v to get more diff",
+        "",
+        "tests\\test_vendor_committed.py:96: AssertionError",
+        "=========================== short test summary info ===========================",
+        "FAILED tests/test_vendor_committed.py::test_vendor_tracked_set_and_content_exactly_matches_build",
+        "1 failed, 2 passed in 0.44s"
+      ],
+      "sha256": "3ee23a12a3d8fb59b4e4e0c4273d960e32b076682632a5afe46abc2d495e2f53"
+    }
+  ],
+  "mutations": [
+    "proof/schema.json",
+    "proof/README.md",
+    ".github/rulesets/main.json",
+    "scripts/lwh_apply_rulesets.py",
+    "scripts/lwh_check_commit_identity.py",
+    "scripts/lwh_build.py",
+    "tests/test_vendor_committed.py",
+    "plugins/claude/lwh/vendor/**",
+    "plugins/codex/lwh/vendor/**",
+    ".gitignore",
+    ".gitattributes"
+  ],
+  "unproven": [
+    "Did not verify GitHub App (lwh-claude, lwh-codex) install/functional state beyond .github/apps/*.json presence in the diff.",
+    "PR #5 bundles D0+D1+D2 work in one branch; the mutations[] list above is the D0-relevant subset of a larger diff, not the full PR file list.",
+    "CRITICAL, carried over unresolved from the prior round: the repo-level ruleset (id 23597838) and repo settings checked here are unchanged from the previous PR #4 round (same ruleset id/timestamps) -- they are repo-wide, not PR-scoped, so this record does not re-derive them independently of that earlier check."
+  ]
+}
