@@ -1,5 +1,7 @@
 # LEAPWare Helm
 
+**New session? Read [HANDOFF.md](HANDOFF.md) first.**
+
 Helm makes an AI coding session's spend rules **mechanical**: hooks that
 allow, warn, or deny an action, instead of a rule stated in a prompt and
 hoped for.
