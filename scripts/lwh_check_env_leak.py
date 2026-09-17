@@ -80,6 +80,7 @@ _PATTERN_DATA_EXEMPT = {
     "scripts/lwh_check_env_leak.py",
     "scripts/lwh_handoff.py",
     "tests/core/test_lwh_handoff.py",
+    "tests/test_lwh_check_env_leak.py",
 }
 
 
