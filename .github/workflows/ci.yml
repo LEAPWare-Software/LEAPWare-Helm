@@ -47,6 +47,9 @@ jobs:
       - name: lwh-env-leak (no local-environment or private-project leak)
         run: python scripts/lwh_check_env_leak.py
 
+      - name: lwh-no-instruction-dep (no CLAUDE.md/AGENTS.md runtime dependency)
+        run: python scripts/lwh_check_no_instruction_dep.py
+
       - name: HANDOFF.md shape check
         run: python scripts/lwh_handoff.py --check
 
