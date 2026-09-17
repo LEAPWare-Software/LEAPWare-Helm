@@ -12,3 +12,5 @@ lwt plugin itself must never read or depend on this file at runtime.
 - Every deliverable needs a Proof of Completion: committed, pushed, CI
   green, announced as `LWT - Alert: <id> DONE ...`. See
   `docs/handoff-protocol.md`.
+- Worktrees live only under `<repo>/.worktrees/<branch>`. Never create a
+  worktree or clone as a sibling folder next to the repo.
