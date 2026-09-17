@@ -1,0 +1,20 @@
+{
+  "name": "LEAPWare-Helm",
+  "interface": {
+    "displayName": "LEAPWare Helm"
+  },
+  "plugins": [
+    {
+      "name": "helm",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex/helm"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
