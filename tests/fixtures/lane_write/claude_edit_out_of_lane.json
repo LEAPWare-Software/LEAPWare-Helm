@@ -2,7 +2,7 @@
   "hook_event_name": "PreToolUse",
   "tool_name": "Write",
   "tool_input": {
-    "file_path": "plugins/codex/lwh/bin/lwh_hook.py",
+    "file_path": "plugins/codex/lwt/bin/lwt_hook.py",
     "content": "..."
   }
 }

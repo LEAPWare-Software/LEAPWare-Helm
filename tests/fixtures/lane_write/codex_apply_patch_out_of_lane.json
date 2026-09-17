@@ -2,6 +2,6 @@
   "hook_event_name": "PreToolUse",
   "tool_name": "apply_patch",
   "tool_input": {
-    "input": "*** Begin Patch\n*** Update File: plugins/claude/lwh/bin/lwh_hook.py\n@@\n-old\n+new\n*** End Patch\n"
+    "input": "*** Begin Patch\n*** Update File: plugins/claude/lwt/bin/lwt_hook.py\n@@\n-old\n+new\n*** End Patch\n"
   }
 }

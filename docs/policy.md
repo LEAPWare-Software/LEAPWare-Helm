@@ -1,6 +1,6 @@
 # Policy file format
 
-A helm policy is one JSON file matching `core/policy/schema.json`:
+A tokenwise policy is one JSON file matching `core/policy/schema.json`:
 
 ```json
 {
@@ -16,8 +16,8 @@ A helm policy is one JSON file matching `core/policy/schema.json`:
 - Top-level: only `"$schema"` (optional, informational) and `"rules"`
   (required) are allowed.
 - `"rules"` is an object keyed by `rule_id` — see
-  `core/lwh_core/rules/__init__.py`'s `RULES` list for every rule id a
-  build of helm knows about.
+  `core/lwt_core/rules/__init__.py`'s `RULES` list for every rule id a
+  build of tokenwise knows about.
 - Each rule entry has a required `"mode"`, one of `"off"`, `"warn"`, or
   `"deny"`, and an optional `"options"` object whose shape is rule-specific
   (documented per rule under `docs/rules/`).
@@ -32,7 +32,7 @@ A helm policy is one JSON file matching `core/policy/schema.json`:
 | `deny` | The rule's finding, if any, blocks the action. |
 
 The engine evaluates rules in registry order and stops at the first `deny`
-finding (see `core/lwh_core/engine.py`); `warn` findings from rules that
+finding (see `core/lwt_core/engine.py`); `warn` findings from rules that
 ran before a `deny` are still recorded.
 
 ## Fail-open
@@ -40,15 +40,15 @@ ran before a `deny` are still recorded.
 **A missing, unreadable, or malformed policy file never blocks anything.**
 Concretely:
 
-- `lwh_core.config.load_policy_dict(None)` — or any non-dict input —
+- `lwt_core.config.load_policy_dict(None)` — or any non-dict input —
   returns a `Policy` with `rules={}` and `degraded=True`. Every
   `rule_config(...)` call against it returns `mode=RuleMode.OFF`.
 - A policy dict with a `"rules"` key that isn't an object behaves the same
   way.
 - A single rule entry that isn't an object, or whose `"mode"` isn't a
   recognized string, resolves that ONE rule to `off` without affecting any
-  other rule in the same file (see `lwh_core/config.py::load_policy_dict`).
-- `plugins/claude/lwh/bin/lwh_hook.py` turns "file doesn't exist" and
+  other rule in the same file (see `lwt_core/config.py::load_policy_dict`).
+- `plugins/claude/lwt/bin/lwt_hook.py` turns "file doesn't exist" and
   "file isn't valid JSON" into the same `None` input, so both hit the same
   fail-open path.
 
@@ -61,11 +61,11 @@ fail-open.
 
 ## Where a policy file lives
 
-- Claude Code plugin: `LWH_POLICY_PATH` env var if set, otherwise the
+- Claude Code plugin: `LWT_POLICY_PATH` env var if set, otherwise the
   vendored `core/policy/default.json` bundled at
-  `plugins/claude/lwh/vendor/policy/default.json`.
-- Codex plugin: same convention, read by the `lwh-config` /
-  `lwh-report` skills rather than a hook (see `docs/install-codex.md`).
+  `plugins/claude/lwt/vendor/policy/default.json`.
+- Codex plugin: same convention, read by the `lwt-config` /
+  `lwt-report` skills rather than a hook (see `docs/install-codex.md`).
 
 ## The bundled default
 

@@ -3,14 +3,14 @@
 `core/policy/default.json` is the policy every real install ships with
 unless a project or user overrides it. This test proves that shipped
 default actually denies a no-BUDGET dispatch, by running both real hook
-entry points (`plugins/claude/lwh/bin/lwh_hook.py`,
-`plugins/codex/lwh/bin/lwh_hook.py`) as subprocesses with NO
-`LWH_POLICY_PATH` override -- so each hook falls back to its own vendored
+entry points (`plugins/claude/lwt/bin/lwt_hook.py`,
+`plugins/codex/lwt/bin/lwt_hook.py`) as subprocesses with NO
+`LWT_POLICY_PATH` override -- so each hook falls back to its own vendored
 `vendor/policy/default.json`, exactly as a real install would -- against a
 no-BUDGET fixture, and asserts both deny.
 
 Mutation: set `core/policy/default.json`'s `budget_line.mode` back to
-`"warn"` and re-run `python scripts/lwh_build.py` to sync the vendor
+`"warn"` and re-run `python scripts/lwt_build.py` to sync the vendor
 trees -- `test_both_hooks_deny_under_the_shipped_default_policy` FAILS
 (the decision becomes "allow", not "deny").
 """
@@ -28,11 +28,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # (plugin dir under plugins/, no-BUDGET fixture for that host's event shape)
 HOOK_TARGETS = [
     (
-        REPO_ROOT / "plugins" / "claude" / "lwh",
+        REPO_ROOT / "plugins" / "claude" / "lwt",
         REPO_ROOT / "tests" / "adapters" / "fixtures" / "claude" / "pretooluse_agent_no_budget.json",
     ),
     (
-        REPO_ROOT / "plugins" / "codex" / "lwh",
+        REPO_ROOT / "plugins" / "codex" / "lwt",
         REPO_ROOT / "tests" / "adapters" / "fixtures" / "codex" / "pretooluse_agent_no_budget.json",
     ),
 ]
@@ -40,14 +40,14 @@ HOOK_TARGETS = [
 
 def test_both_hooks_deny_under_the_shipped_default_policy(tmp_path):
     for plugin_dir, fixture in HOOK_TARGETS:
-        hook_script = plugin_dir / "bin" / "lwh_hook.py"
+        hook_script = plugin_dir / "bin" / "lwt_hook.py"
         ledger_path = tmp_path / f"{plugin_dir.parent.name}-ledger.jsonl"
 
         env = {
-            # Deliberately NO LWH_POLICY_PATH: the hook must fall back to
+            # Deliberately NO LWT_POLICY_PATH: the hook must fall back to
             # its own vendored policy/default.json, the file a real
             # install ships and never overrides.
-            "LWH_LEDGER_PATH": str(ledger_path),
+            "LWT_LEDGER_PATH": str(ledger_path),
             "PATH": os.environ.get("PATH", ""),
             "SYSTEMROOT": os.environ.get("SYSTEMROOT", ""),
         }

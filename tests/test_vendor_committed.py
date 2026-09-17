@@ -2,15 +2,15 @@
 produces -- not merely non-empty.
 
 A marketplace/plugin install pulls the repo from git with no build step run
-afterward (scripts/lwh_build.py never executes on the install path), so
-plugins/*/lwh/vendor/ must ship as real, tracked files that are byte-identical
-to what scripts/lwh_build.py would write today. This test would have caught
-#LWH-D0's first CI break (vendor/ gitignored, no tree for CI to check against)
+afterward (scripts/lwt_build.py never executes on the install path), so
+plugins/*/lwt/vendor/ must ship as real, tracked files that are byte-identical
+to what scripts/lwt_build.py would write today. This test would have caught
+#LWT-D0's first CI break (vendor/ gitignored, no tree for CI to check against)
 *and* a narrower regression the first version of this test missed: untracking
 a single vendored file (`git rm --cached` one file, leaving it on disk) left
 `git ls-files` non-empty, so a truthiness check like `assert tracked` still
 passed. This version asserts the *set* of git-tracked paths under each
-vendor/ dir equals the *set* scripts/lwh_build.py would produce, one for one.
+vendor/ dir equals the *set* scripts/lwt_build.py would produce, one for one.
 """
 
 from __future__ import annotations
@@ -24,11 +24,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-import lwh_build  # noqa: E402
+import lwt_build  # noqa: E402
 
 VENDOR_DIRS = [
-    "plugins/claude/lwh/vendor",
-    "plugins/codex/lwh/vendor",
+    "plugins/claude/lwt/vendor",
+    "plugins/codex/lwt/vendor",
 ]
 
 
@@ -70,7 +70,7 @@ def test_vendor_dirs_not_gitignored():
 
 def test_vendor_tracked_set_and_content_exactly_matches_build():
     """The strong version: git's tracked file *set* under vendor/, and every
-    byte in it, must equal exactly what scripts/lwh_build.py would produce
+    byte in it, must equal exactly what scripts/lwt_build.py would produce
     today -- not just "some files are tracked".
 
     Untracking one real file while leaving it on disk (`git rm --cached
@@ -79,10 +79,10 @@ def test_vendor_tracked_set_and_content_exactly_matches_build():
     set, so this test fails even though the file is still present on disk
     and a naive non-empty check would still pass.
     """
-    with tempfile.TemporaryDirectory(prefix="lwh-build-test-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="lwt-build-test-") as tmp:
         tmp_root = Path(tmp)
-        for host, vendor_dir in lwh_build.TARGETS:
-            staging = lwh_build._build_one(host, vendor_dir, tmp_root)
+        for host, vendor_dir in lwt_build.TARGETS:
+            staging = lwt_build._build_one(host, vendor_dir, tmp_root)
             built_files = _walk_files(staging)
 
             rel_vendor_dir = str(vendor_dir.relative_to(REPO_ROOT)).replace("\\", "/")
@@ -95,7 +95,7 @@ def test_vendor_tracked_set_and_content_exactly_matches_build():
 
             assert tracked_rel == built_files, (
                 f"{rel_vendor_dir}: git-tracked file set does not match what "
-                f"scripts/lwh_build.py produces.\n"
+                f"scripts/lwt_build.py produces.\n"
                 f"tracked only: {sorted(tracked_rel - built_files)}\n"
                 f"built only:   {sorted(built_files - tracked_rel)}"
             )
@@ -105,8 +105,8 @@ def test_vendor_tracked_set_and_content_exactly_matches_build():
             mismatched = _diff_recursive(comparison)
             assert not mismatched, (
                 f"{rel_vendor_dir}: committed content differs from "
-                f"scripts/lwh_build.py's output: {mismatched} "
-                f"(run scripts/lwh_build.py and commit the result)"
+                f"scripts/lwt_build.py's output: {mismatched} "
+                f"(run scripts/lwt_build.py and commit the result)"
             )
 
 

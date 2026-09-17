@@ -1,18 +1,18 @@
 # reviews/
 
 Adversarial cross-CLI review records for a shared-path change, per owner
-directive 5 and `scripts/lwh_lanes.py`.
+directive 5 and `scripts/lwt_lanes.py`.
 
 ## When a review is required
 
-Any commit (with an `LWH-Agent: claude` or `LWH-Agent: codex` trailer,
+Any commit (with an `LWT-Agent: claude` or `LWT-Agent: codex` trailer,
 never `human`) that touches a shared path — `core/`, `scripts/`, `.github/`,
 `docs/`, `proof/`, `reviews/`, `HANDOFF.md`, `AGENTS.md`, `CLAUDE.md`,
 `README.md` — needs BOTH `reviews/<pr>/claude-cto.json` and
 `reviews/<pr>/codex-cto.json` present, each with `"verdict": "AGREE"`,
-before `scripts/lwh_lanes.py` (the `lwh-lanes` CI job) passes. Bootstrap
+before `scripts/lwt_lanes.py` (the `lwt-lanes` CI job) passes. Bootstrap
 exception: enforced only for PR numbers greater than 5 — see
-`scripts/lwh_lanes.py`'s module docstring.
+`scripts/lwt_lanes.py`'s module docstring.
 
 ## Record shape (see `schema.json`)
 
@@ -24,7 +24,7 @@ exception: enforced only for PR numbers greater than 5 — see
   "commit_author_agent": "codex",
   "commit_author_id": "codex-worker-session-2026-09-19",
   "verdict": "AGREE",
-  "notes": "Checked core/lwh_core/rules/new_rule.py against the schema; agrees with the codex worker's read of directive 15."
+  "notes": "Checked core/lwt_core/rules/new_rule.py against the schema; agrees with the codex worker's read of directive 15."
 }
 ```
 
@@ -36,7 +36,7 @@ exception: enforced only for PR numbers greater than 5 — see
   be the same identity as the commit's own author, even when both happen
   to run under the same CLI brand (e.g. a Claude CTO role reviewing a
   Claude implementer's commit — two different sessions, not the same one
-  reviewing itself). `scripts/lwh_lanes.py` enforces this by literal string
+  reviewing itself). `scripts/lwt_lanes.py` enforces this by literal string
   inequality; it is on the reviewer to give the two fields genuinely
   distinct values, not merely different-looking ones.
 - `verdict` is `"AGREE"` or `"DISAGREE"`; only `"AGREE"` satisfies the gate.

@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 from adapters.codex.hook_io import parse_event, render_decision, render_report
-from lwh_core.config import Policy, RuleConfig, RuleMode
-from lwh_core.engine import evaluate
+from lwt_core.config import Policy, RuleConfig, RuleMode
+from lwt_core.engine import evaluate
 
 FIXTURES = Path(__file__).parent / "fixtures" / "codex"
 

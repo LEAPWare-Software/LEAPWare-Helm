@@ -1,7 +1,7 @@
 # Rule: `budget_line`
 
 **Status:** shipped, the walking-skeleton rule. Source:
-`core/lwh_core/rules/budget_line.py`. Default mode: `deny` (see
+`core/lwt_core/rules/budget_line.py`. Default mode: `deny` (see
 `core/policy/default.json`) — owner directive 2 requires mechanical
 enforcement, so a dispatch with no BUDGET line is blocked by default, not
 merely recorded.

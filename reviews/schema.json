@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "lwh shared-path review record",
+  "title": "lwt shared-path review record",
   "type": "object",
   "additionalProperties": true,
   "required": [

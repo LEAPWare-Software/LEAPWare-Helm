@@ -1,6 +1,6 @@
-"""Tests for the documented fail-open contract in lwh_core/config.py."""
+"""Tests for the documented fail-open contract in lwt_core/config.py."""
 
-from lwh_core.config import Policy, RuleMode, load_policy_dict
+from lwt_core.config import Policy, RuleMode, load_policy_dict
 
 
 def test_none_policy_is_all_off_and_degraded():

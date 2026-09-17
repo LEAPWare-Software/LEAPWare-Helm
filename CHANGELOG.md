@@ -8,13 +8,13 @@ follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Initial scaffold: `lwh_core` pure engine (`Event` -> `Decision`), the
+- Initial scaffold: `lwt_core` pure engine (`Event` -> `Decision`), the
   `budget_line` walking-skeleton rule, the Claude Code adapter and plugin
   (enforcing `PreToolUse` hook), the Codex adapter and plugin
   (enforcing `PreToolUse` hook — see `docs/install-codex.md`),
-  `scripts/lwh_build.py` (vendoring), both plugin validators, and the unit
+  `scripts/lwt_build.py` (vendoring), both plugin validators, and the unit
   / adapter / conformance test suite.
-- Codex plugin hook: `plugins/codex/lwh/hooks/hooks.json` +
-  `bin/lwh_hook.py`, `adapters/codex/hook_io.render_decision`, superseding
+- Codex plugin hook: `plugins/codex/lwt/hooks/hooks.json` +
+  `bin/lwt_hook.py`, `adapters/codex/hook_io.render_decision`, superseding
   the earlier reporting-only decision now that the plugin-bundled-hooks
   manifest shape is confirmed documented (`docs/install-codex.md`).

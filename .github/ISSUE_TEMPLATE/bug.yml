@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in helm behaves differently than documented.
+description: Something in tokenwise behaves differently than documented.
 labels: ["bug"]
 body:
   - type: dropdown
@@ -7,11 +7,11 @@ body:
     attributes:
       label: Component
       options:
-        - core (lwh_core engine / rules)
+        - core (lwt_core engine / rules)
         - adapters/claude
         - adapters/codex
-        - plugins/claude/lwh
-        - plugins/codex/lwh
+        - plugins/claude/lwt
+        - plugins/codex/lwt
         - scripts (build/validate/release)
         - docs
     validations:
@@ -20,7 +20,7 @@ body:
     id: what-happened
     attributes:
       label: What happened
-      description: What did helm do, and what did you expect instead?
+      description: What did tokenwise do, and what did you expect instead?
     validations:
       required: true
   - type: textarea
@@ -33,7 +33,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: helm version
+      label: tokenwise version
     validations:
       required: true
   - type: input

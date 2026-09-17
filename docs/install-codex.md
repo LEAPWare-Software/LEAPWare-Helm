@@ -1,10 +1,10 @@
-# Installing helm on Codex CLI
+# Installing tokenwise on Codex CLI
 
 The Codex plugin now ships the same enforcement the Claude Code plugin
 does: an enforcing `PreToolUse` hook (`hooks/hooks.json`, running
-`bin/lwh_hook.py`), backed by the same `lwh_core` engine and policy format,
-via `adapters/codex/hook_io.py`. It also installs `skills/lwh-config` and
-`skills/lwh-report`, unchanged in purpose (inspect policy / preview a
+`bin/lwt_hook.py`), backed by the same `lwt_core` engine and policy format,
+via `adapters/codex/hook_io.py`. It also installs `skills/lwt-config` and
+`skills/lwt-report`, unchanged in purpose (inspect policy / preview a
 decision) now that the hook itself enforces.
 
 ## Why this is enforcing now — the recon this decision rests on
@@ -14,7 +14,7 @@ so full enforcement on both; no reporting-only constraint."* This section
 records the recon that confirms that instruction is buildable, superseding
 an earlier reporting-only decision made under an unresolved manifest-shape
 question (see git history of this file for that earlier text, and
-`plugins/codex/lwh/hooks/README.md` for the same "why this changed" note
+`plugins/codex/lwt/hooks/README.md` for the same "why this changed" note
 kept next to the hook it now explains).
 
 ### What Codex CLI hook support looks like (checked September 2026, direct doc fetch)
@@ -46,14 +46,14 @@ earlier recon left:
 - **Plugin hooks receive `PLUGIN_ROOT`** (the installed plugin directory)
   and `PLUGIN_DATA` (a writable per-plugin data directory) as environment
   variables — the Codex equivalents of Claude Code's `CLAUDE_PLUGIN_ROOT`
-  and `CLAUDE_PLUGIN_DATA`, used the same way in `bin/lwh_hook.py`.
+  and `CLAUDE_PLUGIN_DATA`, used the same way in `bin/lwt_hook.py`.
 - **Trust step**: a plugin-bundled ("non-managed") hook still requires a
   user to review and trust it via `/hooks` before its first execution.
   That is a real UX step this project cannot remove, but it is a one-time
   install-time step, not a per-session gate that would defeat "mechanical,
   no-prompting enforcement" as a design goal — so it is not grounds to
   withhold the hook, only to document it (see
-  `plugins/codex/lwh/hooks/README.md`).
+  `plugins/codex/lwt/hooks/README.md`).
 
 An earlier recon pass (general web search plus the same canonical-docs
 fetch) had read these two sources as disagreeing on default-enablement and
@@ -74,13 +74,13 @@ previously missing.
 ## What IS installed
 
 - `hooks/hooks.json` — one `PreToolUse` hook, matcher `Agent`, running
-  `bin/lwh_hook.py` via `${PLUGIN_ROOT}`, with a `commandWindows` override.
-- `bin/lwh_hook.py` — reads stdin, evaluates the event through the shared
+  `bin/lwt_hook.py` via `${PLUGIN_ROOT}`, with a `commandWindows` override.
+- `bin/lwt_hook.py` — reads stdin, evaluates the event through the shared
   engine, appends one ledger line under `${PLUGIN_DATA}`, writes the
   decision to stdout.
-- `skills/lwh-config/SKILL.md` — read/edit the active policy file (same
+- `skills/lwt-config/SKILL.md` — read/edit the active policy file (same
   format as Claude Code's, see `docs/policy.md`).
-- `skills/lwh-report/SKILL.md` — run the same engine over a described
+- `skills/lwt-report/SKILL.md` — run the same engine over a described
   action and report the decision in plain language, useful for previewing
   a policy change without waiting for a real dispatch to hit the hook.
 

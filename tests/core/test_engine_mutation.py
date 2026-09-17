@@ -1,16 +1,16 @@
 """Mutation-style test: proves the rule registry is load-bearing.
 
 This does not edit rules/__init__.py on disk. Instead it monkeypatches
-`lwh_core.engine.RULES` to an empty list — the same effect as removing
+`lwt_core.engine.RULES` to an empty list — the same effect as removing
 `budget_line` from the registry — and asserts the walking-skeleton deny
 disappears. If someone ever made `evaluate()` deny unconditionally (e.g.
 hardcoded, ignoring the registry), this test would still pass with the real
 registry but FAIL here, since an empty registry would then still deny.
 """
 
-import lwh_core.engine as engine_module
-from lwh_core.config import Policy, RuleConfig, RuleMode
-from lwh_core.events import Event
+import lwt_core.engine as engine_module
+from lwt_core.config import Policy, RuleConfig, RuleMode
+from lwt_core.events import Event
 
 
 def _denying_dispatch_event() -> Event:

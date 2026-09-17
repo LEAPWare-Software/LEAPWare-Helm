@@ -5,11 +5,11 @@
 ## Checklist
 
 - [ ] `python -m pytest -q` passes
-- [ ] `python scripts/lwh_build.py --check` passes (or `scripts/lwh_build.py` was
+- [ ] `python scripts/lwt_build.py --check` passes (or `scripts/lwt_build.py` was
       run and the resulting `vendor/` diff is included, if this PR is
       expected to change it)
-- [ ] `python scripts/lwh_validate_claude_plugin.py` passes
-- [ ] `python scripts/lwh_validate_codex_plugin.py` passes
+- [ ] `python scripts/lwt_validate_claude_plugin.py` passes
+- [ ] `python scripts/lwt_validate_codex_plugin.py` passes
 - [ ] No third-party runtime import added under `core/` or `adapters/`
 - [ ] If a rule was added or changed: unit tests cover `off`/`warn`/`deny`
       and a non-applicable-event case, and `docs/rules/` was updated

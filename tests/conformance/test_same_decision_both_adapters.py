@@ -4,7 +4,7 @@ supports — and, since both adapters now render an enforcing hook decision,
 the same rendered `hookSpecificOutput` JSON through both `render_decision`s
 too.
 
-This is the test the walking-skeleton pipeline is built to satisfy: helm's
+This is the test the walking-skeleton pipeline is built to satisfy: tokenwise's
 engine must not silently branch on which host produced the event, and a
 DENY on one host must render byte-for-byte the same shape on the other.
 Where Codex's fixture set has no equivalent of a Claude-only field (e.g.
@@ -20,8 +20,8 @@ from adapters.claude.hook_io import parse_event as claude_parse_event
 from adapters.claude.hook_io import render_decision as claude_render_decision
 from adapters.codex.hook_io import parse_event as codex_parse_event
 from adapters.codex.hook_io import render_decision as codex_render_decision
-from lwh_core.config import Policy, RuleConfig, RuleMode
-from lwh_core.engine import evaluate
+from lwt_core.config import Policy, RuleConfig, RuleMode
+from lwt_core.engine import evaluate
 
 CLAUDE_FIXTURES = Path(__file__).parent.parent / "adapters" / "fixtures" / "claude"
 CODEX_FIXTURES = Path(__file__).parent.parent / "adapters" / "fixtures" / "codex"

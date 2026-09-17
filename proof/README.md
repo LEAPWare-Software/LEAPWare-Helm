@@ -2,19 +2,19 @@
 
 Owner directive 7: **Proof of Completion on every deliverable; done =
 committed AND pushed with a proof record and green CI; every proven
-delivery is announced as `LWH - Alert:`.**
+delivery is announced as `LWT - Alert:`.**
 
 ## What goes here
 
 One `proof/<deliverable-id>.json` per deliverable, validated against
-`schema.json` by `scripts/lwh_check_proof.py` (the `lwh-proof` CI job).
+`schema.json` by `scripts/lwt_check_proof.py` (the `lwt-proof` CI job).
 Nobody hand-writes a record and calls it proof without the commands in it
 actually having been run — `checked_by` must be a different identity than
 `author` precisely so a proof record is never self-certified.
 
 This scaffolding session wrote NO proof records — `schema.json`, this
 README, and the validator are the mechanism. The first real records,
-`LWH-D0.json` and `LWH-D2.json`, were written for those deliverables'
+`LWT-D0.json` and `LWT-D2.json`, were written for those deliverables'
 independent verification; every deliverable after them writes its own.
 
 ## Record shape
@@ -43,13 +43,13 @@ See `schema.json` for the enforced shape. In prose:
 ## Validating
 
 ```
-python scripts/lwh_check_proof.py
+python scripts/lwt_check_proof.py
 ```
 
 Validates every `proof/*.json` file against `schema.json`, plus the
 structural checks a JSON Schema alone cannot express (`checked_by !=
 author`, `exit == expect_exit` for every command). Exits 0 and prints
-`lwh-proof check passed` when every record is clean, or a distinct
+`lwt-proof check passed` when every record is clean, or a distinct
 skipped-message when `proof/` has no records yet — an empty `proof/` is
 not itself a failure (nothing to prove yet is not the same as a broken
 proof record).

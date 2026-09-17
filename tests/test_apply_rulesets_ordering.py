@@ -1,10 +1,10 @@
 """apply_rulesets.py must refuse to apply a ruleset before the repo's own
 merge-method settings allow what that ruleset requires.
 
-This is the LWH-D0 ordering bug: a ruleset requiring squash merges (via a
+This is the LWT-D0 ordering bug: a ruleset requiring squash merges (via a
 `pull_request` or `merge_queue` rule) fails on GitHub with a 422 if
 `allow_squash_merge` is still false on the repo. The fix is to run the
-settings PATCH first; this test locks in that scripts/lwh_apply_rulesets.py
+settings PATCH first; this test locks in that scripts/lwt_apply_rulesets.py
 catches the wrong order itself, with a clear message, rather than letting
 the 422 be the first anyone hears of it.
 """
@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT_PATH = REPO_ROOT / "scripts" / "lwh_apply_rulesets.py"
+SCRIPT_PATH = REPO_ROOT / "scripts" / "lwt_apply_rulesets.py"
 
 
 def _load_module():

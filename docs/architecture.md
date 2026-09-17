@@ -11,18 +11,18 @@
             +-------------------+        adapters/codex/hook_io.py
                       |
                       v
-                Event (neutral)          core/lwh_core/events.py
+                Event (neutral)          core/lwt_core/events.py
                       |
                       v
             +-------------------+
-            |  engine.evaluate()  |      core/lwh_core/engine.py
+            |  engine.evaluate()  |      core/lwt_core/engine.py
             +-------------------+
                  /            \
         Policy (loaded)   RULES (registry)
-     core/lwh_core/config.py   core/lwh_core/rules/__init__.py
+     core/lwt_core/config.py   core/lwt_core/rules/__init__.py
                       |
                       v
-                Decision (neutral)       core/lwh_core/engine.py
+                Decision (neutral)       core/lwt_core/engine.py
                       |
                       v
             +----------------------+
@@ -33,7 +33,7 @@
               host-native output
 ```
 
-`core/lwh_core` does **no I/O**: no file reads, no stdin, no environment
+`core/lwt_core` does **no I/O**: no file reads, no stdin, no environment
 variables, no clock. Every function in it is `(data in) -> (data out)`.
 This is what the mutation test in `tests/core/test_engine_mutation.py` and
 the conformance test in `tests/conformance/` rely on: the same `Event`
@@ -43,7 +43,7 @@ which adapter built the `Event` or what will be done with the `Decision`.
 Everything that touches the outside world — reading stdin, resolving a
 policy file path, appending a ledger line, writing stdout, setting an exit
 code — lives in an adapter or a plugin's `bin/` script
-(`plugins/claude/lwh/bin/lwh_hook.py`).
+(`plugins/claude/lwt/bin/lwt_hook.py`).
 
 ## Why two adapters, one core
 
@@ -59,10 +59,10 @@ translates its native format at the edges.
 
 A Claude Code plugin (and a Codex plugin) is distributed as its own
 self-contained directory — it cannot import a sibling package from outside
-that directory at install time. `scripts/lwh_build.py` copies `core/lwh_core`,
+that directory at install time. `scripts/lwt_build.py` copies `core/lwt_core`,
 `core/policy`, and the matching `adapters/<host>` into
-`plugins/<host>/lwh/vendor/` before a plugin is installed or released.
-`scripts/lwh_build.py --check` (run in CI) fails if a committed `vendor/`
+`plugins/<host>/lwt/vendor/` before a plugin is installed or released.
+`scripts/lwt_build.py --check` (run in CI) fails if a committed `vendor/`
 directory — during local development, not committed per `.gitignore` — has
 drifted from its source. Nobody should hand-edit anything under `vendor/`.
 
@@ -73,20 +73,20 @@ not `python3` vs. `python`, not a pinned minor version, not a Windows
 Python-Launcher (`py`) that on some Windows installs is a Microsoft Store
 stub that prints a store prompt instead of running anything.
 
-`plugins/claude/lwh/hooks/hooks.json`'s `command` is a single string, run
+`plugins/claude/lwt/hooks/hooks.json`'s `command` is a single string, run
 through the platform shell exactly as Claude Code invokes any `"type":
 "command"` hook (`cmd.exe` on Windows, `sh` elsewhere — confirmed by
 testing, see below):
 
 ```
-python3 "${CLAUDE_PLUGIN_ROOT}/bin/lwh_hook.py" || python "${CLAUDE_PLUGIN_ROOT}/bin/lwh_hook.py"
+python3 "${CLAUDE_PLUGIN_ROOT}/bin/lwt_hook.py" || python "${CLAUDE_PLUGIN_ROOT}/bin/lwt_hook.py"
 ```
 
 `||` is a shell primitive both `cmd.exe` and POSIX `sh` support: the right
 side only runs if the left side's command could not even be started (exit
 127 on POSIX, 9009 on `cmd.exe` — "not recognized"). This is safe here, and
 would NOT be safe for a script that signals its decision through its exit
-code, because `${CLAUDE_PLUGIN_ROOT}/bin/lwh_hook.py` always exits `0` and
+code, because `${CLAUDE_PLUGIN_ROOT}/bin/lwt_hook.py` always exits `0` and
 carries its decision in `hookSpecificOutput.permissionDecision` on stdout
 instead (see `docs/install-claude.md`) — so a `python3` run that
 successfully denies still exits `0`, and the `python` fallback is never
@@ -106,7 +106,7 @@ Sources consulted for this design (both `WebFetch`ed during this change):
   cross-platform Python interpreter selection — that choice, and its
   reasoning above, is this project's own.
 
-`scripts/lwh_check_hook_launch.py` (the `lwh-portable` CI job, run on all
+`scripts/lwt_check_hook_launch.py` (the `lwh-portable` CI job, run on all
 three hosted OSes with nothing installed beyond `actions/setup-python`)
 extracts this exact `command` string from `hooks.json`, substitutes
 `${CLAUDE_PLUGIN_ROOT}` the same way, and runs it through the shell against
@@ -119,13 +119,13 @@ mock of the launch mechanism.
 Three independent layers all fail open, each documented at its own layer
 rather than assumed:
 
-1. `lwh_core.config.load_policy_dict`: a missing or malformed policy
+1. `lwt_core.config.load_policy_dict`: a missing or malformed policy
    dict resolves every unmentioned or misconfigured rule to `off`. See
    `docs/policy.md#fail-open`.
-2. `lwh_core.engine.evaluate`: an exception raised inside a single rule is
+2. `lwt_core.engine.evaluate`: an exception raised inside a single rule is
    caught and downgraded to a `warn`-shaped finding rather than propagating
    or defaulting to `deny`.
-3. `plugins/claude/lwh/bin/lwh_hook.py`: a policy file that cannot be
+3. `plugins/claude/lwt/bin/lwt_hook.py`: a policy file that cannot be
    read or parsed at all is treated as `None`, which layer 1 above then
    treats as an all-`off` policy. A ledger write failure is swallowed
    rather than blocking the decision from being returned.
