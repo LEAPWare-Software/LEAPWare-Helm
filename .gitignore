@@ -47,3 +47,6 @@ id_ed25519*
 Thumbs.db
 desktop.ini
 *.swp
+
+# worktrees live only under .worktrees/ (see AGENTS.md / CLAUDE.md)
+.worktrees/
