@@ -1,0 +1,50 @@
+# Vendored copies are BUILD OUTPUT, not source — scripts/build.py writes
+# them from core/ and adapters/. Keeping them out of git keeps drift
+# impossible to hide: CI always runs scripts/build.py --check against a
+# checkout with none of these present.
+plugins/claude/helm/vendor/
+plugins/codex/helm/vendor/
+
+# Release artifacts (scripts/release.py).
+dist/
+
+# Runtime state a plugin install writes; never part of the shipped tree.
+*.jsonl
+state/
+plugins/*/helm/state/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+build/
+.mypy_cache/
+.ruff_cache/
+
+# credentials — same class of rule as every LEAPWare repo, prophylaxis not
+# remediation; nothing in this project's own source should ever hold one.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+*.credentials.json
+.npmrc
+
+# local scratch
+*.tmp
+*.bak
+*.local.json
+
+# editors / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.swp
