@@ -47,6 +47,17 @@ jobs:
       - name: lwh-env-leak (no local-environment or private-project leak)
         run: python scripts/lwh_check_env_leak.py
 
+      - name: lwh-env-leak-history (no leak in any commit added by this PR, even one later reverted)
+        if: github.event_name == 'pull_request'
+        # Same base/head reasoning as lwh-commit-identity below: a
+        # working-tree-only scan misses a leak that was committed and then
+        # removed again within the same PR -- it is still in the branch's
+        # history, which a clone or marketplace pull carries in full. No
+        # allow-listed commits: every PR's added lines must be clean.
+        run: >-
+          python scripts/lwh_check_env_leak.py
+          --range ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
+
       - name: lwh-no-instruction-dep (no CLAUDE.md/AGENTS.md runtime dependency)
         run: python scripts/lwh_check_no_instruction_dep.py
 
