@@ -22,23 +22,26 @@ step *n* is done and proven.
 
 1. Work from this repo only. Clone fresh on any machine; no dependence on
    the local environment. **SACRED.**
-2. Bootstrap PR #5 (branch `lwt-bootstrap`, containing D0, D1, D2 —
-   replaces the earlier #4/`fix/lwt-d0-vendor-committed`, whose history
-   was cleaned by owner decision) is not yet merged — the setup session
-   could not merge it. Enable auto-merge / add it to the merge queue
-   (squash) once its required checks are green. The merge happens
-   through GitHub's merge queue, never a local merge.
-3. Create the two GitHub Apps (`lwt-claude`, `lwt-codex`) from the
+2. DONE — bootstrap PR #5 (branch `lwt-bootstrap`, containing D0, D1, D2 —
+   replaced the earlier #4/`fix/lwt-d0-vendor-committed`, whose history
+   was cleaned by owner decision) merged through the merge queue, sha
+   `ba4f667d37c55f4c809f843ac70d730e9b961e9a`. The repo is now worked
+   from its own Claude session opened in its own folder.
+3. Implement the hosted-runner-only CI check (directive a in
+   `docs/requirements/owner-directives.md`): a CI check that fails on any
+   `runs-on` value other than a GitHub-hosted runner, proven by breaking
+   it on purpose.
+4. Create the two GitHub Apps (`lwt-claude`, `lwt-codex`) from the
    committed manifests in `.github/apps/`, using a browser-enabled
    session. Install each on this repo only. Store each private key in the
    owner's secrets manager, never in the repo. Record App ids in
    `docs/maintainers/github-apps.md` via PR.
-4. ENTER PLAN MODE (each CLI in its own lane) and build the full plan to
+5. ENTER PLAN MODE (each CLI in its own lane) and build the full plan to
    ship lwt 1.0.0, starting with the complete requirements package per
    `docs/requirements/approach.md`, seeded by
    `docs/requirements/owner-directives.md`. Present the plan to the owner
    for approval before building.
-5. Every deliverable follows `docs/handoff-protocol.md`: proof record,
+6. Every deliverable follows `docs/handoff-protocol.md`: proof record,
    pushed, CI green, alert line `LWT - Alert: <id> DONE ...`.
 
 <!-- lwt-handoff:begin -->
