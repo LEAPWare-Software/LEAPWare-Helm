@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Validate plugins/claude/helm against the shape Claude Code plugins require.
+"""Validate plugins/claude/tokenwise against the shape Claude Code plugins require.
 
 Checks (stdlib only):
   - .claude-plugin/plugin.json exists, is valid JSON, has name/version/description.
   - hooks/hooks.json exists, is valid JSON, and every command array references
     ${CLAUDE_PLUGIN_ROOT} rather than an absolute path.
-  - bin/helm_hook.py exists.
-  - vendor/helm_core and vendor/adapters/claude exist (i.e. scripts/build.py
+  - bin/tokenwise_hook.py exists.
+  - vendor/tokenwise_core and vendor/adapters/claude exist (i.e. scripts/build.py
     has been run — this does NOT itself run build.py).
   - Root .claude-plugin/marketplace.json references this plugin's source path.
 
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_DIR = REPO_ROOT / "plugins" / "claude" / "helm"
+PLUGIN_DIR = REPO_ROOT / "plugins" / "claude" / "tokenwise"
 
 
 def _read_json(path: Path, errors: list[str]):
@@ -64,10 +64,10 @@ def validate() -> list[str]:
                                 "reference ${CLAUDE_PLUGIN_ROOT}"
                             )
 
-    if not (PLUGIN_DIR / "bin" / "helm_hook.py").is_file():
-        errors.append("missing plugins/claude/helm/bin/helm_hook.py")
+    if not (PLUGIN_DIR / "bin" / "tokenwise_hook.py").is_file():
+        errors.append("missing plugins/claude/tokenwise/bin/tokenwise_hook.py")
 
-    vendor_core = PLUGIN_DIR / "vendor" / "helm_core"
+    vendor_core = PLUGIN_DIR / "vendor" / "tokenwise_core"
     vendor_adapter = PLUGIN_DIR / "vendor" / "adapters" / "claude"
     if not vendor_core.is_dir():
         errors.append(f"missing {vendor_core} — run scripts/build.py")
@@ -77,10 +77,10 @@ def validate() -> list[str]:
     marketplace = _read_json(REPO_ROOT / ".claude-plugin" / "marketplace.json", errors)
     if isinstance(marketplace, dict):
         sources = [p.get("source") for p in marketplace.get("plugins", []) if isinstance(p, dict)]
-        if "./plugins/claude/helm" not in sources:
+        if "./plugins/claude/tokenwise" not in sources:
             errors.append(
                 "root .claude-plugin/marketplace.json does not list source "
-                "'./plugins/claude/helm'"
+                "'./plugins/claude/tokenwise'"
             )
 
     return errors

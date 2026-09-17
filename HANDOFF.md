@@ -22,33 +22,33 @@ step *n* is done and proven.
 
 1. Work from this repo only. Clone fresh on any machine; no dependence on
    the local environment. **SACRED.**
-2. Bootstrap PR (branch `fix/lwh-d0-vendor-committed`, containing D0, D1,
+2. Bootstrap PR (branch `fix/lwt-d0-vendor-committed`, containing D0, D1,
    D2) is not yet merged — the setup session could not merge it. Enable
    auto-merge / add it to the merge queue (squash) once its required
    checks are green. The merge happens through GitHub's merge queue,
    never a local merge.
-3. Create the two GitHub Apps (`lwh-claude`, `lwh-codex`) from the
+3. Create the two GitHub Apps (`lwt-claude`, `lwt-codex`) from the
    committed manifests in `.github/apps/`, using a browser-enabled
    session. Install each on this repo only. Store each private key in the
    owner's secrets manager, never in the repo. Record App ids in
    `docs/maintainers/github-apps.md` via PR.
 4. ENTER PLAN MODE (each CLI in its own lane) and build the full plan to
-   ship lwh 1.0.0, starting with the complete requirements package per
+   ship lwt 1.0.0, starting with the complete requirements package per
    `docs/requirements/approach.md`, seeded by
    `docs/requirements/owner-directives.md`. Present the plan to the owner
    for approval before building.
 5. Every deliverable follows `docs/handoff-protocol.md`: proof record,
-   pushed, CI green, alert line `LWH - Alert: <id> DONE ...`.
+   pushed, CI green, alert line `LWT - Alert: <id> DONE ...`.
 
-<!-- lwh-handoff:begin -->
+<!-- lwt-handoff:begin -->
 
-Generated: (run `python scripts/lwh_handoff.py --write` to fill this in)
+Generated: (run `python scripts/lwt_handoff.py --write` to fill this in)
 main SHA: (unknown)
 
 Open PRs:
 (unavailable: run --write with `gh` authenticated)
 
-<!-- lwh-handoff:end -->
+<!-- lwt-handoff:end -->
 
 ## Re-derive state
 
@@ -58,7 +58,7 @@ git status
 git log --oneline -10
 gh pr list --state open
 gh run list --limit 10
-gh api repos/LEAPWare-Software/LEAPWare-Helm/rulesets
+gh api repos/LEAPWare-Software/LEAPWare-TokenWise/rulesets
 ```
 
 `gh` and `git` are the state of record. This file's "In flight" list is
@@ -85,7 +85,7 @@ the plan; the commands above are the facts.
   `git ls-files --others --exclude-standard` too.
 - Squash-merge only happens through the merge queue — never merge locally
   and push to `main`.
-- `scripts/lwh_handoff.py --write` requires `gh` auth for the PR list; it
+- `scripts/lwt_handoff.py --write` requires `gh` auth for the PR list; it
   degrades to "(unavailable)" rather than failing when `gh` is missing or
   unauthenticated, so a green `--check` does not by itself prove the PR
   list is current — re-read the "Generated" timestamp.

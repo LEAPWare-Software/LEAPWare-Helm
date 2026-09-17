@@ -1,9 +1,9 @@
 """Unit tests for the budget_line rule and its engine wiring."""
 
-from helm_core.config import RuleConfig, RuleMode
-from helm_core.engine import evaluate
-from helm_core.events import Event
-from helm_core.rules import budget_line
+from tokenwise_core.config import RuleConfig, RuleMode
+from tokenwise_core.engine import evaluate
+from tokenwise_core.events import Event
+from tokenwise_core.rules import budget_line
 
 
 def _agent_event(prompt: str) -> Event:
@@ -53,7 +53,7 @@ def test_rule_has_no_opinion_on_non_pretooluse_events():
 def test_engine_denies_walking_skeleton_dispatch():
     """The full walking-skeleton path: engine.evaluate denies a dispatch
     missing a BUDGET line when budget_line is configured to deny."""
-    from helm_core.config import Policy
+    from tokenwise_core.config import Policy
 
     event = _agent_event("Fix the bug")
     policy = Policy(rules={"budget_line": RuleConfig(mode=RuleMode.DENY)})
@@ -63,7 +63,7 @@ def test_engine_denies_walking_skeleton_dispatch():
 
 
 def test_engine_allows_walking_skeleton_dispatch_with_budget_line():
-    from helm_core.config import Policy
+    from tokenwise_core.config import Policy
 
     event = _agent_event("BUDGET: 20k\nFix the bug")
     policy = Policy(rules={"budget_line": RuleConfig(mode=RuleMode.DENY)})
@@ -72,7 +72,7 @@ def test_engine_allows_walking_skeleton_dispatch_with_budget_line():
 
 
 def test_warn_mode_never_blocks():
-    from helm_core.config import Policy
+    from tokenwise_core.config import Policy
 
     event = _agent_event("Fix the bug, no budget line")
     policy = Policy(rules={"budget_line": RuleConfig(mode=RuleMode.WARN)})
@@ -82,7 +82,7 @@ def test_warn_mode_never_blocks():
 
 
 def test_off_mode_produces_no_finding():
-    from helm_core.config import Policy
+    from tokenwise_core.config import Policy
 
     event = _agent_event("Fix the bug, no budget line")
     policy = Policy(rules={"budget_line": RuleConfig(mode=RuleMode.OFF)})

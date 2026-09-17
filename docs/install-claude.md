@@ -1,20 +1,20 @@
-# Installing helm on Claude Code
+# Installing tokenwise on Claude Code
 
 ## From this local checkout (development)
 
 1. In Claude Code, add this repository as a marketplace source pointing at
    `.claude-plugin/marketplace.json` (root of this repo), or add
-   `plugins/claude/helm` directly as a local plugin path, per Claude Code's
+   `plugins/claude/tokenwise` directly as a local plugin path, per Claude Code's
    own plugin-development docs.
 2. Before installing, run `py -3.12 scripts/build.py` from the repo root so
-   `plugins/claude/helm/vendor/` contains a current copy of `helm_core` and
+   `plugins/claude/tokenwise/vendor/` contains a current copy of `tokenwise_core` and
    `adapters/claude` — the plugin cannot import from outside its own
    directory once installed.
-3. Enable the `helm` plugin.
+3. Enable the `tokenwise` plugin.
 
 ## What it registers
 
-One hook, in `plugins/claude/helm/hooks/hooks.json`:
+One hook, in `plugins/claude/tokenwise/hooks/hooks.json`:
 
 ```json
 {
@@ -23,7 +23,7 @@ One hook, in `plugins/claude/helm/hooks/hooks.json`:
     {
       "type": "command",
       "command": "python",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/helm_hook.py"]
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/tokenwise_hook.py"]
     }
   ]
 }
@@ -38,7 +38,7 @@ one of its fifteen hook registrations uses the same variable.
 
 ## What it does on each dispatch
 
-`plugins/claude/helm/bin/helm_hook.py` reads the `PreToolUse` JSON from
+`plugins/claude/tokenwise/bin/tokenwise_hook.py` reads the `PreToolUse` JSON from
 stdin, evaluates it against the active policy (see `docs/policy.md`), and
 writes a JSON decision to stdout:
 
@@ -50,7 +50,7 @@ writes a JSON decision to stdout:
   carrying any `warn`-mode findings (visible, non-blocking).
 
 Every evaluated event is also appended as one JSON line to a ledger file —
-see `docs/rules/budget-line.md` and `helm-report`'s `SKILL.md` for how to
+see `docs/rules/budget-line.md` and `tokenwise-report`'s `SKILL.md` for how to
 read it.
 
 ## Hook event JSON shapes referenced

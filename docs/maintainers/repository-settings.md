@@ -57,7 +57,7 @@ Squash-only, auto-merge-eligible, delete-branch-on-merge are repository
 settings, not ruleset rules:
 
 ```
-gh api -X PATCH repos/LEAPWare-Software/LEAPWare-Helm \
+gh api -X PATCH repos/LEAPWare-Software/LEAPWare-TokenWise \
   -F allow_squash_merge=true \
   -F allow_merge_commit=false \
   -F allow_rebase_merge=false \

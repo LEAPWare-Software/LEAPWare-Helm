@@ -2,8 +2,8 @@
 """Build zip release artifacts for both plugins.
 
 Runs `scripts/build.py` (to refresh vendor/), then both validators, then
-zips `plugins/claude/helm/` and `plugins/codex/helm/` into
-`dist/helm-claude-<version>.zip` and `dist/helm-codex-<version>.zip`, where
+zips `plugins/claude/tokenwise/` and `plugins/codex/tokenwise/` into
+`dist/tokenwise-claude-<version>.zip` and `dist/tokenwise-codex-<version>.zip`, where
 `<version>` is read from each plugin's own manifest. Refuses to produce an
 artifact if a validator fails. Stdlib only.
 
@@ -49,12 +49,12 @@ def main() -> int:
         return 1
 
     claude_manifest = json.loads(
-        (REPO_ROOT / "plugins" / "claude" / "helm" / ".claude-plugin" / "plugin.json").read_text(
+        (REPO_ROOT / "plugins" / "claude" / "tokenwise" / ".claude-plugin" / "plugin.json").read_text(
             encoding="utf-8"
         )
     )
     codex_manifest = json.loads(
-        (REPO_ROOT / "plugins" / "codex" / "helm" / ".codex-plugin" / "plugin.json").read_text(
+        (REPO_ROOT / "plugins" / "codex" / "tokenwise" / ".codex-plugin" / "plugin.json").read_text(
             encoding="utf-8"
         )
     )
@@ -63,12 +63,12 @@ def main() -> int:
     codex_version = codex_manifest["version"]
 
     _zip_dir(
-        REPO_ROOT / "plugins" / "claude" / "helm",
-        DIST_DIR / f"helm-claude-{claude_version}.zip",
+        REPO_ROOT / "plugins" / "claude" / "tokenwise",
+        DIST_DIR / f"tokenwise-claude-{claude_version}.zip",
     )
     _zip_dir(
-        REPO_ROOT / "plugins" / "codex" / "helm",
-        DIST_DIR / f"helm-codex-{codex_version}.zip",
+        REPO_ROOT / "plugins" / "codex" / "tokenwise",
+        DIST_DIR / f"tokenwise-codex-{codex_version}.zip",
     )
     print(f"wrote {DIST_DIR}")
     return 0

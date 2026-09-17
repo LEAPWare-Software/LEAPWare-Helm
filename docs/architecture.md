@@ -11,18 +11,18 @@
             +-------------------+        adapters/codex/hook_io.py
                       |
                       v
-                Event (neutral)          core/helm_core/events.py
+                Event (neutral)          core/tokenwise_core/events.py
                       |
                       v
             +-------------------+
-            |  engine.evaluate()  |      core/helm_core/engine.py
+            |  engine.evaluate()  |      core/tokenwise_core/engine.py
             +-------------------+
                  /            \
         Policy (loaded)   RULES (registry)
-     core/helm_core/config.py   core/helm_core/rules/__init__.py
+     core/tokenwise_core/config.py   core/tokenwise_core/rules/__init__.py
                       |
                       v
-                Decision (neutral)       core/helm_core/engine.py
+                Decision (neutral)       core/tokenwise_core/engine.py
                       |
                       v
             +----------------------+
@@ -33,7 +33,7 @@
               host-native output
 ```
 
-`core/helm_core` does **no I/O**: no file reads, no stdin, no environment
+`core/tokenwise_core` does **no I/O**: no file reads, no stdin, no environment
 variables, no clock. Every function in it is `(data in) -> (data out)`.
 This is what the mutation test in `tests/core/test_engine_mutation.py` and
 the conformance test in `tests/conformance/` rely on: the same `Event`
@@ -43,7 +43,7 @@ which adapter built the `Event` or what will be done with the `Decision`.
 Everything that touches the outside world — reading stdin, resolving a
 policy file path, appending a ledger line, writing stdout, setting an exit
 code — lives in an adapter or a plugin's `bin/` script
-(`plugins/claude/helm/bin/helm_hook.py`).
+(`plugins/claude/tokenwise/bin/tokenwise_hook.py`).
 
 ## Why two adapters, one core
 
@@ -58,9 +58,9 @@ translates its native format at the edges.
 
 A Claude Code plugin (and a Codex plugin) is distributed as its own
 self-contained directory — it cannot import a sibling package from outside
-that directory at install time. `scripts/build.py` copies `core/helm_core`,
+that directory at install time. `scripts/build.py` copies `core/tokenwise_core`,
 `core/policy`, and the matching `adapters/<host>` into
-`plugins/<host>/helm/vendor/` before a plugin is installed or released.
+`plugins/<host>/tokenwise/vendor/` before a plugin is installed or released.
 `scripts/build.py --check` (run in CI) fails if a committed `vendor/`
 directory — during local development, not committed per `.gitignore` — has
 drifted from its source. Nobody should hand-edit anything under `vendor/`.
@@ -70,13 +70,13 @@ drifted from its source. Nobody should hand-edit anything under `vendor/`.
 Three independent layers all fail open, each documented at its own layer
 rather than assumed:
 
-1. `helm_core.config.load_policy_dict`: a missing or malformed policy
+1. `tokenwise_core.config.load_policy_dict`: a missing or malformed policy
    dict resolves every unmentioned or misconfigured rule to `off`. See
    `docs/policy.md#fail-open`.
-2. `helm_core.engine.evaluate`: an exception raised inside a single rule is
+2. `tokenwise_core.engine.evaluate`: an exception raised inside a single rule is
    caught and downgraded to a `warn`-shaped finding rather than propagating
    or defaulting to `deny`.
-3. `plugins/claude/helm/bin/helm_hook.py`: a policy file that cannot be
+3. `plugins/claude/tokenwise/bin/tokenwise_hook.py`: a policy file that cannot be
    read or parsed at all is treated as `None`, which layer 1 above then
    treats as an all-`off` policy. A ledger write failure is swallowed
    rather than blocking the decision from being returned.

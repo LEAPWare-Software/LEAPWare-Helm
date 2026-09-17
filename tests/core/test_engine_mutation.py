@@ -1,16 +1,16 @@
 """Mutation-style test: proves the rule registry is load-bearing.
 
 This does not edit rules/__init__.py on disk. Instead it monkeypatches
-`helm_core.engine.RULES` to an empty list — the same effect as removing
+`tokenwise_core.engine.RULES` to an empty list — the same effect as removing
 `budget_line` from the registry — and asserts the walking-skeleton deny
 disappears. If someone ever made `evaluate()` deny unconditionally (e.g.
 hardcoded, ignoring the registry), this test would still pass with the real
 registry but FAIL here, since an empty registry would then still deny.
 """
 
-import helm_core.engine as engine_module
-from helm_core.config import Policy, RuleConfig, RuleMode
-from helm_core.events import Event
+import tokenwise_core.engine as engine_module
+from tokenwise_core.config import Policy, RuleConfig, RuleMode
+from tokenwise_core.events import Event
 
 
 def _denying_dispatch_event() -> Event:

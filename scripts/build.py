@@ -3,10 +3,10 @@
 
 Plugins cannot import from outside their own install directory at runtime
 (a Claude Code plugin is distributed as its own subtree; the same is true
-for a Codex plugin package). So `helm_core` and the relevant adapter are
+for a Codex plugin package). So `tokenwise_core` and the relevant adapter are
 copied — not symlinked, copied, since a symlink does not survive a zip
-release artifact — into `plugins/claude/helm/vendor/` and
-`plugins/codex/helm/vendor/` respectively. This script is the ONLY place
+release artifact — into `plugins/claude/tokenwise/vendor/` and
+`plugins/codex/tokenwise/vendor/` respectively. This script is the ONLY place
 that copy happens; nobody should hand-edit a vendor/ directory.
 
 Usage:
@@ -30,8 +30,8 @@ ADAPTERS_DIR = REPO_ROOT / "adapters"
 
 # (host adapter subpackage name, plugin vendor dir)
 TARGETS = [
-    ("claude", REPO_ROOT / "plugins" / "claude" / "helm" / "vendor"),
-    ("codex", REPO_ROOT / "plugins" / "codex" / "helm" / "vendor"),
+    ("claude", REPO_ROOT / "plugins" / "claude" / "tokenwise" / "vendor"),
+    ("codex", REPO_ROOT / "plugins" / "codex" / "tokenwise" / "vendor"),
 ]
 
 _IGNORE_PATTERNS = shutil.ignore_patterns("__pycache__", "*.pyc")
@@ -44,7 +44,7 @@ def _build_one(host: str, vendor_dir: Path, tmp_root: Path) -> Path:
         shutil.rmtree(staging)
     staging.mkdir(parents=True)
 
-    shutil.copytree(CORE_DIR / "helm_core", staging / "helm_core", ignore=_IGNORE_PATTERNS)
+    shutil.copytree(CORE_DIR / "tokenwise_core", staging / "tokenwise_core", ignore=_IGNORE_PATTERNS)
 
     policy_dst = staging / "policy"
     policy_dst.mkdir()
@@ -82,7 +82,7 @@ def main() -> int:
     import tempfile
 
     drift_found = False
-    with tempfile.TemporaryDirectory(prefix="helm-build-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="tokenwise-build-") as tmp:
         tmp_root = Path(tmp)
         for host, vendor_dir in TARGETS:
             staging = _build_one(host, vendor_dir, tmp_root)

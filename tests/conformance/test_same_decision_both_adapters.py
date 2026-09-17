@@ -2,7 +2,7 @@
 both adapters' `parse_event`, for every hook shape Codex's parser also
 supports.
 
-This is the test the walking-skeleton pipeline is built to satisfy: helm's
+This is the test the walking-skeleton pipeline is built to satisfy: tokenwise's
 engine must not silently branch on which host produced the event. Where
 Codex's fixture set has no equivalent of a Claude-only field (e.g.
 `transcript_path`), the test only asserts on the fields both adapters
@@ -15,8 +15,8 @@ from pathlib import Path
 
 from adapters.claude.hook_io import parse_event as claude_parse_event
 from adapters.codex.hook_io import parse_event as codex_parse_event
-from helm_core.config import Policy, RuleConfig, RuleMode
-from helm_core.engine import evaluate
+from tokenwise_core.config import Policy, RuleConfig, RuleMode
+from tokenwise_core.engine import evaluate
 
 CLAUDE_FIXTURES = Path(__file__).parent.parent / "adapters" / "fixtures" / "claude"
 CODEX_FIXTURES = Path(__file__).parent.parent / "adapters" / "fixtures" / "codex"

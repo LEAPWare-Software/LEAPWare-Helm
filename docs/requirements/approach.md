@@ -1,4 +1,4 @@
-# Requirements approach for lwh 1.0.0
+# Requirements approach for lwt 1.0.0
 
 Owner-approved approach for turning `owner-directives.md` into a shipped
 1.0.0. Order matters: evidence before drafting, an adversarial audit

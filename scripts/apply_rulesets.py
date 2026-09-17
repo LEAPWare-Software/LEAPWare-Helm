@@ -26,7 +26,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RULESETS_DIR = REPO_ROOT / ".github" / "rulesets"
-DEFAULT_REPO = "LEAPWare-Software/LEAPWare-Helm"
+DEFAULT_REPO = "LEAPWare-Software/LEAPWare-TokenWise"
 
 
 def _load_rulesets(rulesets_dir: Path) -> list[tuple[Path, dict]]:

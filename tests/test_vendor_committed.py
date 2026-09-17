@@ -2,8 +2,8 @@
 
 A marketplace/plugin install pulls the repo from git with no build step
 run afterward (scripts/build.py never executes on the install path), so
-plugins/*/helm/vendor/ must ship as real, tracked files. This test fails
-if `git ls-files` does not see them — it would have caught #LWH-D0's
+plugins/*/tokenwise/vendor/ must ship as real, tracked files. This test fails
+if `git ls-files` does not see them — it would have caught #LWT-D0's
 first CI break, where vendor/ was gitignored and CI's checkout simply
 had no vendor tree to check against.
 """
@@ -17,8 +17,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 VENDOR_DIRS = [
-    "plugins/claude/helm/vendor",
-    "plugins/codex/helm/vendor",
+    "plugins/claude/tokenwise/vendor",
+    "plugins/codex/tokenwise/vendor",
 ]
 
 

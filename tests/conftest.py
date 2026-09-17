@@ -1,5 +1,5 @@
-"""Put `core/` and the repo root on sys.path so tests import `helm_core` and
-`adapters.*` the same way `plugins/*/helm/bin/helm_hook.py`'s vendored copy
+"""Put `core/` and the repo root on sys.path so tests import `tokenwise_core` and
+`adapters.*` the same way `plugins/*/tokenwise/bin/tokenwise_hook.py`'s vendored copy
 does, without requiring an editable install.
 """
 

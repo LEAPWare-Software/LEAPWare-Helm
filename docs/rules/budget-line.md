@@ -1,7 +1,7 @@
 # Rule: `budget_line`
 
 **Status:** shipped, the walking-skeleton rule. Source:
-`core/helm_core/rules/budget_line.py`. Default mode: `warn` (see
+`core/tokenwise_core/rules/budget_line.py`. Default mode: `warn` (see
 `core/policy/default.json`).
 
 ## What it checks

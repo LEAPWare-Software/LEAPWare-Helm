@@ -3,14 +3,14 @@
 ## Reporting a vulnerability
 
 Please report a suspected vulnerability privately via GitHub's
-["Report a vulnerability"](https://github.com/LEAPWare-Software/LEAPWare-Helm/security/advisories/new)
+["Report a vulnerability"](https://github.com/LEAPWare-Software/LEAPWare-TokenWise/security/advisories/new)
 flow on this repository (once published), rather than a public issue. If
 that is not available yet, open an issue with the security-sensitive
 details omitted and a maintainer will follow up privately.
 
 Include, where possible:
 
-- The affected file(s) or plugin (`plugins/claude/helm` or `plugins/codex/helm`).
+- The affected file(s) or plugin (`plugins/claude/tokenwise` or `plugins/codex/tokenwise`).
 - Whether the issue is in the pure engine (`core/`), an adapter, or a
   plugin's own script.
 - Reproduction steps and, if relevant, whether a `deny`-mode rule can be

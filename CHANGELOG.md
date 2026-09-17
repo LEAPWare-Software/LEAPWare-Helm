@@ -8,7 +8,7 @@ follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Initial scaffold: `helm_core` pure engine (`Event` -> `Decision`), the
+- Initial scaffold: `tokenwise_core` pure engine (`Event` -> `Decision`), the
   `budget_line` walking-skeleton rule, the Claude Code adapter and plugin
   (enforcing `PreToolUse` hook), the Codex adapter and plugin
   (reporting-only — see `docs/install-codex.md`), `scripts/build.py`

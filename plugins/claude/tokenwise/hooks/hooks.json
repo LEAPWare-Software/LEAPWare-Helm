@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/bin/tokenwise_hook.py"],
+            "timeout": 10,
+            "statusMessage": "tokenwise: checking dispatch against token policy"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Validate plugins/codex/helm against the shape this project's Codex plugin uses.
+"""Validate plugins/codex/tokenwise against the shape this project's Codex plugin uses.
 
 Checks (stdlib only):
   - .codex-plugin/plugin.json exists, is valid JSON, has name/version/description.
-  - skills/helm-config/SKILL.md and skills/helm-report/SKILL.md exist.
+  - skills/tokenwise-config/SKILL.md and skills/tokenwise-report/SKILL.md exist.
   - hooks/README.md exists and no hooks/hooks.json is present (this plugin
     is reporting-only by deliberate decision; see docs/install-codex.md).
-  - vendor/helm_core and vendor/adapters/codex exist (scripts/build.py has
+  - vendor/tokenwise_core and vendor/adapters/codex exist (scripts/build.py has
     been run — this does NOT itself run build.py).
   - .agents/plugins/marketplace.json references this plugin's path.
 
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_DIR = REPO_ROOT / "plugins" / "codex" / "helm"
+PLUGIN_DIR = REPO_ROOT / "plugins" / "codex" / "tokenwise"
 
 
 def _read_json(path: Path, errors: list[str]):
@@ -49,20 +49,20 @@ def validate() -> list[str]:
                 "see docs/install-codex.md"
             )
 
-    for skill in ("helm-config", "helm-report"):
+    for skill in ("tokenwise-config", "tokenwise-report"):
         skill_path = PLUGIN_DIR / "skills" / skill / "SKILL.md"
         if not skill_path.is_file():
             errors.append(f"missing {skill_path}")
 
     if not (PLUGIN_DIR / "hooks" / "README.md").is_file():
-        errors.append("missing plugins/codex/helm/hooks/README.md")
+        errors.append("missing plugins/codex/tokenwise/hooks/README.md")
     if (PLUGIN_DIR / "hooks" / "hooks.json").exists():
         errors.append(
-            "plugins/codex/helm/hooks/hooks.json exists — this plugin ships "
+            "plugins/codex/tokenwise/hooks/hooks.json exists — this plugin ships "
             "reporting-only, remove it or update docs/install-codex.md and this validator"
         )
 
-    vendor_core = PLUGIN_DIR / "vendor" / "helm_core"
+    vendor_core = PLUGIN_DIR / "vendor" / "tokenwise_core"
     vendor_adapter = PLUGIN_DIR / "vendor" / "adapters" / "codex"
     if not vendor_core.is_dir():
         errors.append(f"missing {vendor_core} — run scripts/build.py")
@@ -76,10 +76,10 @@ def validate() -> list[str]:
             for p in marketplace.get("plugins", [])
             if isinstance(p, dict) and isinstance(p.get("source"), dict)
         ]
-        if "./plugins/codex/helm" not in paths:
+        if "./plugins/codex/tokenwise" not in paths:
             errors.append(
                 "root .agents/plugins/marketplace.json does not list path "
-                "'./plugins/codex/helm'"
+                "'./plugins/codex/tokenwise'"
             )
 
     return errors

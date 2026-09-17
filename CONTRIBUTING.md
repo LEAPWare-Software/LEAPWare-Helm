@@ -1,4 +1,4 @@
-# Contributing to LEAPWare Helm
+# Contributing to LEAPWare TokenWise
 
 ## Runtime dependency policy — read this first
 
@@ -9,10 +9,10 @@ one dev-only exception, used solely under `tests/`.
 
 ## Adding a rule
 
-1. Write it under `core/helm_core/rules/<rule_id>.py`. It must expose
+1. Write it under `core/tokenwise_core/rules/<rule_id>.py`. It must expose
    `rule_id: str` and `evaluate(event, config) -> Optional[Finding]`, and it
    must be pure — no file I/O, no network, no clock.
-2. Register it in `core/helm_core/rules/__init__.py`'s `RULES` list.
+2. Register it in `core/tokenwise_core/rules/__init__.py`'s `RULES` list.
 3. Add unit tests under `tests/core/`, including a case for each of `off`,
    `warn`, and `deny` mode, and a case proving the rule returns `None` (not
    a false positive) for events it has no opinion on.

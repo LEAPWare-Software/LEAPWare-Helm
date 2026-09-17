@@ -1,0 +1,18 @@
+{
+  "name": "tokenwise",
+  "version": "0.1.0+codex",
+  "description": "Reporting-only companion to the LEAPWare TokenWise Claude Code plugin. Same policy engine and rules, surfaced through skills rather than an enforcing hook — see skills/tokenwise-report and docs/install-codex.md for why.",
+  "author": {
+    "name": "LEAPWare-Software"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LEAPWare TokenWise",
+    "shortDescription": "Token-policy reporting for this session (reporting-only on Codex).",
+    "longDescription": "tokenwise makes an AI coding session's spend rules mechanical. On Claude Code it also enforces via a hook; on Codex it currently ships reporting-only (see docs/install-codex.md) — the same policy engine, surfaced through the tokenwise-config and tokenwise-report skills.",
+    "developerName": "LEAPWare-Software",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "tokenwise: show the current token policy and report on the last action."
+  }
+}

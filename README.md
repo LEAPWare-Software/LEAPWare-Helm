@@ -1,8 +1,8 @@
-# LEAPWare Helm
+# LEAPWare TokenWise
 
 **New session? Read [HANDOFF.md](HANDOFF.md) first.**
 
-Helm makes an AI coding session's spend rules **mechanical**: hooks that
+TokenWise makes an AI coding session's spend rules **mechanical**: hooks that
 allow, warn, or deny an action, instead of a rule stated in a prompt and
 hoped for.
 
@@ -10,8 +10,8 @@ Shipped as two plugins sharing one policy engine:
 
 | Host | Package | What it does |
 |---|---|---|
-| Claude Code | `plugins/claude/helm/` | Registers an enforcing `PreToolUse` hook. |
-| Codex CLI | `plugins/codex/helm/` | Reporting-only: same engine, surfaced via skills. See [docs/install-codex.md](docs/install-codex.md) for why. |
+| Claude Code | `plugins/claude/tokenwise/` | Registers an enforcing `PreToolUse` hook. |
+| Codex CLI | `plugins/codex/tokenwise/` | Reporting-only: same engine, surfaced via skills. See [docs/install-codex.md](docs/install-codex.md) for why. |
 
 Runtime dependency policy: **Python 3.10+ standard library only.** No
 third-party package is imported by `core/`, `adapters/`, or any shipped
@@ -31,12 +31,12 @@ decision, decision out — not because a real policy should stop at one rule.
 ## How it fits together
 
 ```
-core/helm_core/          pure engine: (Event, Policy) -> Decision. No I/O.
+core/tokenwise_core/          pure engine: (Event, Policy) -> Decision. No I/O.
 core/policy/              policy JSON schema + bundled default policy.
 adapters/claude/          Claude Code hook JSON <-> neutral Event/Decision.
 adapters/codex/           Codex event shape <-> neutral Event; reporting only.
-plugins/claude/helm/      the installable Claude Code plugin (vendors core+adapter).
-plugins/codex/helm/       the installable Codex plugin (vendors core+adapter).
+plugins/claude/tokenwise/      the installable Claude Code plugin (vendors core+adapter).
+plugins/codex/tokenwise/       the installable Codex plugin (vendors core+adapter).
 scripts/build.py          copies core/ + the matching adapter into each plugin's vendor/.
 ```
 

@@ -1,0 +1,138 @@
+"""Unit tests for scripts/lwt_handoff.py. No network; git/gh calls are
+monkeypatched out where a test needs cmd_check/cmd_write end to end."""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+SCRIPT_PATH = REPO_ROOT / "scripts" / "lwt_handoff.py"
+
+_spec = importlib.util.spec_from_file_location("lwt_handoff", SCRIPT_PATH)
+lwt_handoff = importlib.util.module_from_spec(_spec)
+sys.modules["lwt_handoff"] = lwt_handoff
+_spec.loader.exec_module(lwt_handoff)
+
+
+def _valid_text(begin: str = lwt_handoff.BEGIN_MARKER, end: str = lwt_handoff.END_MARKER) -> str:
+    return (
+        "# HANDOFF\n\n"
+        "## Start of session\n- [ ] read this\n\n"
+        "## In flight\n1. do the thing\n\n"
+        f"{begin}\nGenerated: 2026-09-17 00:00 UTC\nmain SHA: deadbeef\n\nOpen PRs:\n(none)\n\n{end}\n\n"
+        "## Re-derive state\n```\ngit status\n```\n\n"
+        "## Hard rules\n- stdlib only\n\n"
+        "## Traps\n- none yet\n"
+    )
+
+
+def test_valid_text_passes():
+    assert lwt_handoff._validate(_valid_text()) == []
+
+
+def test_missing_section_fails():
+    text = _valid_text().replace("## Traps\n", "")
+    errors = lwt_handoff._validate(text)
+    assert any("Traps" in e for e in errors)
+
+
+def test_missing_begin_marker_fails():
+    text = _valid_text().replace(lwt_handoff.BEGIN_MARKER, "")
+    errors = lwt_handoff._validate(text)
+    assert any("begin" in e.lower() for e in errors)
+
+
+def test_duplicate_marker_fails():
+    text = _valid_text() + f"\n{lwt_handoff.BEGIN_MARKER}\n{lwt_handoff.END_MARKER}\n"
+    errors = lwt_handoff._validate(text)
+    assert any("exactly one" in e for e in errors)
+
+
+def test_markers_out_of_order_fails():
+    text = _valid_text(begin=lwt_handoff.END_MARKER, end=lwt_handoff.BEGIN_MARKER)
+    errors = lwt_handoff._validate(text)
+    assert any("before begin" in e for e in errors)
+
+
+def test_over_size_cap_fails():
+    text = _valid_text() + ("x" * (lwt_handoff.SIZE_CAP_BYTES + 1))
+    errors = lwt_handoff._validate(text)
+    assert any("bytes" in e and "cap" in e for e in errors)
+
+
+@pytest.mark.parametrize(
+    "needle",
+    ["C:\\Users\\someone\\repo", "/Users/someone/repo", "/home/someone/repo"],
+)
+def test_absolute_path_fails(needle):
+    text = _valid_text() + f"\n{needle}\n"
+    errors = lwt_handoff._validate(text)
+    assert any("absolute path" in e for e in errors)
+
+
+@pytest.mark.parametrize("needle", ["manny", "Ramos", "FOLLOWOZ", "leapware-cpt", "leapware-financial"])
+def test_forbidden_substring_fails(needle):
+    text = _valid_text() + f"\n{needle}\n"
+    errors = lwt_handoff._validate(text)
+    assert any("forbidden substring" in e for e in errors)
+
+
+def test_cmd_check_missing_file(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(lwt_handoff, "HANDOFF_PATH", tmp_path / "HANDOFF.md")
+    assert lwt_handoff.cmd_check() == 1
+    assert "does not exist" in capsys.readouterr().err
+
+
+def test_cmd_check_valid_file(tmp_path, monkeypatch, capsys):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text(), encoding="utf-8")
+    monkeypatch.setattr(lwt_handoff, "HANDOFF_PATH", path)
+    assert lwt_handoff.cmd_check() == 0
+    assert "OK" in capsys.readouterr().out
+
+
+def test_cmd_check_invalid_file(tmp_path, monkeypatch, capsys):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text().replace("## Traps\n", ""), encoding="utf-8")
+    monkeypatch.setattr(lwt_handoff, "HANDOFF_PATH", path)
+    assert lwt_handoff.cmd_check() == 1
+    assert "FAIL" in capsys.readouterr().err
+
+
+def test_cmd_write_regenerates_only_the_block(tmp_path, monkeypatch):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text(), encoding="utf-8")
+    monkeypatch.setattr(lwt_handoff, "HANDOFF_PATH", path)
+    monkeypatch.setattr(lwt_handoff, "_run_git", lambda args: "cafef00d")
+    monkeypatch.setattr(lwt_handoff, "_run_gh", lambda args: "")
+
+    before = path.read_text(encoding="utf-8")
+    prose_before = before.split(lwt_handoff.BEGIN_MARKER)[0]
+
+    assert lwt_handoff.cmd_write() == 0
+
+    after = path.read_text(encoding="utf-8")
+    prose_after = after.split(lwt_handoff.BEGIN_MARKER)[0]
+    assert prose_before == prose_after
+    assert "cafef00d" in after
+    assert after.count(lwt_handoff.BEGIN_MARKER) == 1
+    assert after.count(lwt_handoff.END_MARKER) == 1
+
+
+def test_cmd_write_requires_existing_markers(tmp_path, monkeypatch, capsys):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text().replace(lwt_handoff.BEGIN_MARKER, ""), encoding="utf-8")
+    monkeypatch.setattr(lwt_handoff, "HANDOFF_PATH", path)
+    assert lwt_handoff.cmd_write() == 1
+    assert "must already contain" in capsys.readouterr().err
+
+
+def test_real_handoff_md_passes_check():
+    """The repo's own HANDOFF.md must pass --check (guards drift)."""
+    monkeypatch_path = REPO_ROOT / "HANDOFF.md"
+    text = monkeypatch_path.read_text(encoding="utf-8")
+    assert lwt_handoff._validate(text) == []
