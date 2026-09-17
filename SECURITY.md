@@ -10,7 +10,7 @@ details omitted and a maintainer will follow up privately.
 
 Include, where possible:
 
-- The affected file(s) or plugin (`plugins/claude/helm` or `plugins/codex/helm`).
+- The affected file(s) or plugin (`plugins/claude/lwh` or `plugins/codex/lwh`).
 - Whether the issue is in the pure engine (`core/`), an adapter, or a
   plugin's own script.
 - Reproduction steps and, if relevant, whether a `deny`-mode rule can be

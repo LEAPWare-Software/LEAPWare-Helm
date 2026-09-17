@@ -1,10 +1,13 @@
 """Conformance test: the same neutral event yields the same Decision through
 both adapters' `parse_event`, for every hook shape Codex's parser also
-supports.
+supports — and, since both adapters now render an enforcing hook decision,
+the same rendered `hookSpecificOutput` JSON through both `render_decision`s
+too.
 
 This is the test the walking-skeleton pipeline is built to satisfy: helm's
-engine must not silently branch on which host produced the event. Where
-Codex's fixture set has no equivalent of a Claude-only field (e.g.
+engine must not silently branch on which host produced the event, and a
+DENY on one host must render byte-for-byte the same shape on the other.
+Where Codex's fixture set has no equivalent of a Claude-only field (e.g.
 `transcript_path`), the test only asserts on the fields both adapters
 populate — `hook_event`, `tool_name`, `prompt` — since those are the only
 fields `budget_line` (or any rule in the registry) reads.
@@ -14,9 +17,11 @@ import json
 from pathlib import Path
 
 from adapters.claude.hook_io import parse_event as claude_parse_event
+from adapters.claude.hook_io import render_decision as claude_render_decision
 from adapters.codex.hook_io import parse_event as codex_parse_event
-from helm_core.config import Policy, RuleConfig, RuleMode
-from helm_core.engine import evaluate
+from adapters.codex.hook_io import render_decision as codex_render_decision
+from lwh_core.config import Policy, RuleConfig, RuleMode
+from lwh_core.engine import evaluate
 
 CLAUDE_FIXTURES = Path(__file__).parent.parent / "adapters" / "fixtures" / "claude"
 CODEX_FIXTURES = Path(__file__).parent.parent / "adapters" / "fixtures" / "codex"
@@ -52,3 +57,19 @@ def test_paired_fixtures_produce_identical_decisions():
         assert [f.rule_id for f in claude_decision.findings] == [
             f.rule_id for f in codex_decision.findings
         ]
+
+        # Both hooks now enforce; the rendered hookSpecificOutput JSON must
+        # match exactly, not just the underlying Decision.
+        assert claude_render_decision(claude_decision) == codex_render_decision(codex_decision)
+
+
+def test_warn_mode_decision_renders_identically_both_adapters():
+    """A WARN (not DENY) finding still renders the same allow+reason shape."""
+    warn_policy = Policy(rules={"budget_line": RuleConfig(mode=RuleMode.WARN)})
+    claude_event = claude_parse_event(_load(CLAUDE_FIXTURES / "pretooluse_agent_no_budget.json"))
+    codex_event = codex_parse_event(_load(CODEX_FIXTURES / "pretooluse_agent_no_budget.json"))
+
+    claude_decision = evaluate(claude_event, warn_policy)
+    codex_decision = evaluate(codex_event, warn_policy)
+
+    assert claude_render_decision(claude_decision) == codex_render_decision(codex_decision)

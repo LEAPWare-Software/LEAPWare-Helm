@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "helm",
+      "name": "lwh",
       "source": {
         "source": "local",
-        "path": "./plugins/codex/helm"
+        "path": "./plugins/codex/lwh"
       },
       "policy": {
         "installation": "AVAILABLE",

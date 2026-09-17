@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 from adapters.claude.hook_io import parse_event, render_decision
-from helm_core.config import Policy, RuleConfig, RuleMode
-from helm_core.engine import evaluate
+from lwh_core.config import Policy, RuleConfig, RuleMode
+from lwh_core.engine import evaluate
 
 FIXTURES = Path(__file__).parent / "fixtures" / "claude"
 
