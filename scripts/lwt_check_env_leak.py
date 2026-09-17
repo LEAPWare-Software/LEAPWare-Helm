@@ -76,11 +76,18 @@ def _tracked_files() -> list[Path]:
 
 # Files that necessarily carry this scanner's own pattern data (or, for a
 # test file, synthetic needles that exercise it) rather than a real leak.
+# Both the current (lwt-prefixed) and the pre-rename (lwh-prefixed) paths
+# are listed: --range history scanning walks commits from before the
+# lwh -> lwt rename too, where these same files carried the old names.
 _PATTERN_DATA_EXEMPT = {
     "scripts/lwt_check_env_leak.py",
     "scripts/lwt_handoff.py",
     "tests/core/test_lwt_handoff.py",
     "tests/test_lwt_check_env_leak.py",
+    "scripts/lwh_check_env_leak.py",
+    "scripts/lwh_handoff.py",
+    "tests/core/test_lwh_handoff.py",
+    "tests/test_lwh_check_env_leak.py",
 }
 
 
