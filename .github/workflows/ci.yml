@@ -50,6 +50,9 @@ jobs:
       - name: lwh-no-instruction-dep (no CLAUDE.md/AGENTS.md runtime dependency)
         run: python scripts/lwh_check_no_instruction_dep.py
 
+      - name: lwh-proof (proof/*.json records validate against proof/schema.json)
+        run: python scripts/lwh_check_proof.py
+
       - name: HANDOFF.md shape check
         run: python scripts/lwh_handoff.py --check
 
@@ -65,6 +68,16 @@ jobs:
           --base ${{ github.event.pull_request.base.sha }}
           --head ${{ github.event.pull_request.head.sha }}
 
+      - name: lwh-lanes (per-commit lane discipline + shared-path review gate)
+        if: github.event_name == 'pull_request'
+        # Same base/head reasoning as lwh-commit-identity above: check the
+        # PR's own real commits, never the synthetic merge commit.
+        run: >-
+          python scripts/lwh_lanes.py
+          --base ${{ github.event.pull_request.base.sha }}
+          --head ${{ github.event.pull_request.head.sha }}
+          --pr-number ${{ github.event.pull_request.number }}
+
   lwh-portable:
     strategy:
       fail-fast: false
@@ -78,5 +91,5 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run the Claude hook exactly as hooks.json declares it
+      - name: Run both hooks exactly as each hooks.json declares them
         run: python scripts/lwh_check_hook_launch.py
