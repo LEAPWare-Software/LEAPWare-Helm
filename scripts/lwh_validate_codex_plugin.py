@@ -2,10 +2,15 @@
 """Validate plugins/codex/lwh against the shape this project's Codex plugin uses.
 
 Checks (stdlib only):
-  - .codex-plugin/plugin.json exists, is valid JSON, has name/version/description.
+  - .codex-plugin/plugin.json exists, is valid JSON, has name/version/
+    description, and its "hooks" field points at "./hooks/hooks.json".
   - skills/lwh-config/SKILL.md and skills/lwh-report/SKILL.md exist.
-  - hooks/README.md exists and no hooks/hooks.json is present (this plugin
-    is reporting-only by deliberate decision; see docs/install-codex.md).
+  - hooks/hooks.json exists, is valid JSON, and every command (including
+    commandWindows) array references ${PLUGIN_ROOT} rather than an
+    absolute path — mirrors scripts/lwh_validate_claude_plugin.py's
+    ${CLAUDE_PLUGIN_ROOT} check. See docs/install-codex.md for why this
+    plugin now ships an enforcing hook rather than reporting-only.
+  - bin/lwh_hook.py exists.
   - vendor/lwh_core and vendor/adapters/codex exist (scripts/lwh_build.py has
     been run — this does NOT itself run build.py).
   - .agents/plugins/marketplace.json references this plugin's path.
@@ -43,10 +48,10 @@ def validate() -> list[str]:
         for field in ("name", "version", "description"):
             if not manifest.get(field):
                 errors.append(f"plugin.json missing required field: {field}")
-        if "hooks" in manifest:
+        if manifest.get("hooks") != "./hooks/hooks.json":
             errors.append(
-                "plugin.json declares a 'hooks' field — this plugin is reporting-only, "
-                "see docs/install-codex.md"
+                "plugin.json 'hooks' field must be './hooks/hooks.json' "
+                "(this plugin ships an enforcing hook, see docs/install-codex.md)"
             )
 
     for skill in ("lwh-config", "lwh-report"):
@@ -54,13 +59,27 @@ def validate() -> list[str]:
         if not skill_path.is_file():
             errors.append(f"missing {skill_path}")
 
-    if not (PLUGIN_DIR / "hooks" / "README.md").is_file():
-        errors.append("missing plugins/codex/lwh/hooks/README.md")
-    if (PLUGIN_DIR / "hooks" / "hooks.json").exists():
-        errors.append(
-            "plugins/codex/lwh/hooks/hooks.json exists — this plugin ships "
-            "reporting-only, remove it or update docs/install-codex.md and this validator"
-        )
+    hooks = _read_json(PLUGIN_DIR / "hooks" / "hooks.json", errors)
+    if isinstance(hooks, dict):
+        hooks_obj = hooks.get("hooks")
+        if not isinstance(hooks_obj, dict) or not hooks_obj:
+            errors.append("hooks/hooks.json has no 'hooks' object or it is empty")
+        else:
+            for event_name, entries in hooks_obj.items():
+                if not isinstance(entries, list):
+                    errors.append(f"hooks/hooks.json: '{event_name}' is not a list")
+                    continue
+                for entry in entries:
+                    for hook in entry.get("hooks", []):
+                        commands = [str(hook.get("command", "")), str(hook.get("commandWindows", ""))]
+                        if not any("${PLUGIN_ROOT}" in c for c in commands if c):
+                            errors.append(
+                                f"hooks/hooks.json: a '{event_name}' hook command does not "
+                                "reference ${PLUGIN_ROOT}"
+                            )
+
+    if not (PLUGIN_DIR / "bin" / "lwh_hook.py").is_file():
+        errors.append("missing plugins/codex/lwh/bin/lwh_hook.py")
 
     vendor_core = PLUGIN_DIR / "vendor" / "lwh_core"
     vendor_adapter = PLUGIN_DIR / "vendor" / "adapters" / "codex"

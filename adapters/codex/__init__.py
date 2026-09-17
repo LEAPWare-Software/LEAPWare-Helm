@@ -1,1 +1,1 @@
-"""The Codex adapter package (reporting-only). See hook_io.py."""
+"""The Codex adapter package. See hook_io.py."""

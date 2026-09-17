@@ -1,27 +1,25 @@
-"""Codex adapter: reporting-only, by deliberate decision. See docs/install-codex.md.
+"""Codex adapter: translate Codex's hook JSON <-> lwh_core's neutral shapes.
 
-As of this scaffold (September 2026) Codex CLI hook support is new,
-plugin-bundled hooks require the user to review and trust each hook
-definition through `/hooks` before it runs, and the exact plugin.json
-`hooks` field shape is not documented in the sources this project could
-reach (see docs/install-codex.md for the exact URLs and quotes checked).
-That is not a footing Helm ships a DENY-capable gate on: a hook a user must
-manually trust per-session, in an undocumented manifest shape, cannot be the
-mechanical policy layer this project promises.
+Superseded 2026-09-17 (owner ruling: "Codex supports hooks, so full
+enforcement"). The prior reporting-only decision rested on recon that could
+not confirm a documented plugin-bundled-hooks manifest shape; a direct fetch
+of the canonical docs page confirmed one. Codex's `PreToolUse` hook uses the
+SAME `hookSpecificOutput.permissionDecision` (`"allow"` / `"deny"`) shape
+Claude Code's does, so `render_decision` below is a straight port of
+`adapters/claude/hook_io.py`'s. See docs/install-codex.md for the full
+citation trail and quoted source text; sources:
+  - https://developers.openai.com/codex/hooks (redirects to
+    https://learn.chatgpt.com/docs/hooks) — hook event/handler/stdin/stdout
+    shapes, plugin-bundled hooks via `plugin.json`'s `hooks` field.
+  - https://developers.openai.com/codex/plugins (redirects to
+    https://learn.chatgpt.com/docs/plugins) — plugin manifest shape.
 
-So the Codex plugin ships two skills (lwh-config, lwh-report) and this
-adapter, which can turn a neutral `Event` + `Decision` into a ledger line
-and a human-readable report string — the same engine, the same rules, but
-surfaced through a skill a user invokes rather than a hook that blocks
-automatically. `parse_event` exists so the SAME neutral-event fixtures used
-for the Claude adapter can be replayed here for the conformance test in
-tests/conformance/: proof the engine's decision doesn't change by adapter,
-even though only one adapter can currently act on a DENY.
+This module does the I/O-adjacent translation ONLY, same split as the
+Claude adapter: see `plugins/codex/lwh/bin/lwh_hook.py` for the thin script
+that reads stdin / writes stdout / sets the exit code.
 
-If Codex hook support matures to where a plugin can register a PreToolUse-
-equivalent gate without a manual per-session trust step, this module is
-where that gate belongs, alongside `render_decision` mirroring
-adapters/claude/hook_io.py's.
+`render_report` and the lwh-report skill are kept: a human-readable report
+is still useful even though the hook itself now enforces mechanically.
 """
 
 from __future__ import annotations
@@ -31,6 +29,15 @@ from typing import Any, Mapping, Optional
 from lwh_core.config import Policy, load_policy_dict
 from lwh_core.engine import Decision
 from lwh_core.events import Event
+
+#: Codex's env var naming the installed plugin's own root directory, used in
+#: hooks.json command args (e.g. "${PLUGIN_ROOT}/bin/lwh_hook.py"). Per the
+#: fetched hooks doc: "Plugin hooks receive environment variables: PLUGIN_ROOT
+#: — installed plugin directory, PLUGIN_DATA — writable plugin data directory."
+PLUGIN_ROOT_VAR = "PLUGIN_ROOT"
+#: Writable per-plugin data directory, used for the ledger path (mirrors
+#: Claude's CLAUDE_PLUGIN_DATA in plugins/claude/lwh/bin/lwh_hook.py).
+PLUGIN_DATA_VAR = "PLUGIN_DATA"
 
 
 def parse_event(raw: Mapping[str, Any]) -> Event:
@@ -68,6 +75,39 @@ def parse_event(raw: Mapping[str, Any]) -> Event:
         transcript_path=None,
         extra=extra,
     )
+
+
+def render_decision(decision: Decision) -> dict:
+    """Build the JSON dict Codex's PreToolUse hook expects on stdout.
+
+    Identical shape to `adapters.claude.hook_io.render_decision`: a DENY
+    finding maps to `hookSpecificOutput.permissionDecision: "deny"` with
+    `permissionDecisionReason` set; a clean or WARN-only decision maps to
+    `"allow"`, with warnings joined into `permissionDecisionReason` too.
+    Per the fetched hooks doc's "PreToolUse — deny/allow/rewrite decisions"
+    example, this is the documented Codex shape, not a guess ported from
+    Claude — the two happening to match is what makes the conformance test
+    in tests/conformance/ meaningful for `render_decision`, not just
+    `parse_event`.
+    """
+    if not decision.permit:
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": decision.deny_reason or "denied by policy",
+            }
+        }
+
+    output: dict = {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "allow",
+        }
+    }
+    if decision.warnings:
+        output["hookSpecificOutput"]["permissionDecisionReason"] = "; ".join(decision.warnings)
+    return output
 
 
 def render_report(decision: Decision) -> str:

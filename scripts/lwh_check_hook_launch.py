@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""CI check backing the `lwh-portable` job: run the hook EXACTLY as declared.
+"""CI check backing the `lwh-portable` job: run each plugin's hook EXACTLY
+as declared, for both Claude Code and Codex.
 
-Reads `plugins/claude/lwh/hooks/hooks.json`, takes the literal `command`
+For each of `plugins/claude/lwh/hooks/hooks.json` and
+`plugins/codex/lwh/hooks/hooks.json`, this takes the literal `command`
 string for the `PreToolUse` / `Agent` hook, substitutes `${CLAUDE_PLUGIN_ROOT}`
-the same way Claude Code does (a plain string replace, before the shell ever
-sees it), and executes that string through the platform shell exactly as
-Claude Code would (`shell=True`: `cmd.exe` on Windows, `sh` elsewhere) —
-this is the portable dual-interpreter launch chosen in
+/ `${PLUGIN_ROOT}` the same way each host does (a plain string replace,
+before the shell ever sees it), and executes that string through the
+platform shell exactly as the host CLI would (`shell=True`: `cmd.exe` on
+Windows, `sh` elsewhere) — the portable dual-interpreter launch chosen in
 `docs/architecture.md#the-hook-launch-method` specifically because it is
 safe to test this way, without installing anything beyond a `setup-python`
 Python already on `PATH`.
@@ -19,21 +21,33 @@ Usage:
     python scripts/lwh_check_hook_launch.py
 
 Stdlib only. Exits 0 and prints "lwh-portable check passed" on success;
-otherwise prints the failure and exits 1.
+otherwise prints every failure found (not just the first) and exits 1.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_DIR = REPO_ROOT / "plugins" / "claude" / "lwh"
-HOOKS_JSON = PLUGIN_DIR / "hooks" / "hooks.json"
-FIXTURE = REPO_ROOT / "tests" / "adapters" / "fixtures" / "claude" / "pretooluse_agent_no_budget.json"
+
+# (plugin dir, root-var name, fixture file)
+TARGETS = [
+    (
+        REPO_ROOT / "plugins" / "claude" / "lwh",
+        "CLAUDE_PLUGIN_ROOT",
+        REPO_ROOT / "tests" / "adapters" / "fixtures" / "claude" / "pretooluse_agent_no_budget.json",
+    ),
+    (
+        REPO_ROOT / "plugins" / "codex" / "lwh",
+        "PLUGIN_ROOT",
+        REPO_ROOT / "tests" / "adapters" / "fixtures" / "codex" / "pretooluse_agent_no_budget.json",
+    ),
+]
 
 _DENY_POLICY = {
     "$schema": "./schema.json",
@@ -41,23 +55,22 @@ _DENY_POLICY = {
 }
 
 
-def _hook_command() -> str:
-    hooks = json.loads(HOOKS_JSON.read_text(encoding="utf-8"))
+def _hook_command(hooks_json: Path) -> str:
+    hooks = json.loads(hooks_json.read_text(encoding="utf-8"))
     for entry in hooks["hooks"]["PreToolUse"]:
         if entry.get("matcher") == "Agent":
             for hook in entry["hooks"]:
                 return hook["command"]
-    raise SystemExit("FAIL: no PreToolUse/Agent hook found in hooks.json")
+    raise SystemExit(f"FAIL: no PreToolUse/Agent hook found in {hooks_json}")
 
 
-def main() -> int:
-    command = _hook_command().replace("${CLAUDE_PLUGIN_ROOT}", str(PLUGIN_DIR))
+def _check_one(plugin_dir: Path, root_var: str, fixture: Path, errors: list[str]) -> None:
+    hooks_json = plugin_dir / "hooks" / "hooks.json"
+    command = _hook_command(hooks_json).replace("${" + root_var + "}", str(plugin_dir))
 
     with tempfile.TemporaryDirectory(prefix="lwh-portable-") as tmp:
         policy_path = Path(tmp) / "deny-policy.json"
         policy_path.write_text(json.dumps(_DENY_POLICY), encoding="utf-8")
-
-        import os
 
         env = dict(os.environ)
         env["LWH_POLICY_PATH"] = str(policy_path)
@@ -67,7 +80,7 @@ def main() -> int:
             command,
             shell=True,
             cwd=REPO_ROOT,
-            input=FIXTURE.read_text(encoding="utf-8"),
+            input=fixture.read_text(encoding="utf-8"),
             capture_output=True,
             text=True,
             env=env,
@@ -75,21 +88,31 @@ def main() -> int:
         )
 
     if result.returncode != 0:
-        print(f"FAIL: hook command exited {result.returncode}")
-        print(f"stdout: {result.stdout}")
-        print(f"stderr: {result.stderr}")
-        return 1
+        errors.append(
+            f"{plugin_dir}: hook command exited {result.returncode}\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}"
+        )
+        return
 
     try:
         payload = json.loads(result.stdout.strip().splitlines()[-1])
     except (json.JSONDecodeError, IndexError) as exc:
-        print(f"FAIL: hook stdout was not valid JSON: {exc}")
-        print(f"stdout: {result.stdout}")
-        return 1
+        errors.append(f"{plugin_dir}: hook stdout was not valid JSON: {exc}\nstdout: {result.stdout}")
+        return
 
     decision = payload.get("hookSpecificOutput", {}).get("permissionDecision")
     if decision != "deny":
-        print(f"FAIL: expected permissionDecision 'deny', got {decision!r}: {payload}")
+        errors.append(f"{plugin_dir}: expected permissionDecision 'deny', got {decision!r}: {payload}")
+
+
+def main() -> int:
+    errors: list[str] = []
+    for plugin_dir, root_var, fixture in TARGETS:
+        _check_one(plugin_dir, root_var, fixture, errors)
+
+    if errors:
+        for e in errors:
+            print(f"FAIL: {e}")
         return 1
 
     print("lwh-portable check passed")

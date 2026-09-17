@@ -1,16 +1,17 @@
 ---
 name: lwh-report
-description: Run lwh's policy engine over a described action and report what it WOULD decide (Codex side, reporting-only — no enforcing hook ships here, see docs/install-codex.md).
+description: Run lwh's policy engine over a described action and report what it WOULD decide, without waiting for the real PreToolUse hook to fire (Codex side; see hooks/hooks.json for the enforcing hook itself).
 ---
 
 # lwh-report (Codex)
 
-The Codex plugin does not ship an enforcing hook (see
-`docs/install-codex.md` for why). This skill is the substitute: given a
-description of an action (e.g. a sub-task dispatch and its prompt), it runs
-the same `lwh_core.engine.evaluate` used by the Claude Code plugin, via
-`adapters/codex/hook_io.py`, and reports the decision in plain language
-using `render_report`.
+The Codex plugin now also ships an enforcing `PreToolUse` hook
+(`hooks/hooks.json`, running `bin/lwh_hook.py`), the same mechanism the
+Claude Code plugin uses. This skill is a preview path on top of the same
+engine: given a description of an action (e.g. a sub-task dispatch and its
+prompt), it runs `lwh_core.engine.evaluate` via `adapters/codex/hook_io.py`
+and reports the decision in plain language using `render_report`, useful
+for checking a policy change before a real dispatch exercises it.
 
 ## Usage
 
@@ -19,6 +20,5 @@ using `render_report`.
 2. Load the active policy the same way lwh-config does.
 3. Run `adapters.codex.hook_io.parse_event`, then `lwh_core.engine.evaluate`,
    then `adapters.codex.hook_io.render_report`.
-4. Present the report verbatim; do not soften a reported DENY into a
-   suggestion — say plainly that this action would have been blocked under
-   the Claude Code plugin's equivalent hook, and is not blocked here.
+4. Present the report verbatim; a reported DENY here means the enforcing
+   hook would also deny the same event in `hookSpecificOutput` shape.

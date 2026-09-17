@@ -47,11 +47,12 @@ code — lives in an adapter or a plugin's `bin/` script
 
 ## Why two adapters, one core
 
-Claude Code and Codex CLI have different hook JSON shapes, different
-manifest formats, and (per `docs/install-codex.md`) different levels of
-hook support today. Rather than writing the `budget_line` rule twice, or
-writing a Claude-specific engine, every rule is written once against the
-neutral `Event`/`Decision` shapes, and each host gets a thin adapter that
+Claude Code and Codex CLI have different hook JSON shapes and different
+manifest formats — both now enforce a `PreToolUse` decision the same way
+(`hookSpecificOutput.permissionDecision`, see `docs/install-codex.md`).
+Rather than writing the `budget_line` rule twice, or writing a
+Claude-specific engine, every rule is written once against the neutral
+`Event`/`Decision` shapes, and each host gets a thin adapter that
 translates its native format at the edges.
 
 ## The vendoring step

@@ -1,15 +1,16 @@
 {
   "name": "lwh",
-  "version": "0.1.0+codex",
-  "description": "Reporting-only companion to the LEAPWare Helm Claude Code plugin. Same policy engine and rules, surfaced through skills rather than an enforcing hook — see skills/lwh-report and docs/install-codex.md for why.",
+  "version": "0.2.0+codex",
+  "description": "Companion to the LEAPWare Helm Claude Code plugin, now with the same enforcement: an engine identical to it, an enforcing PreToolUse hook (hooks/hooks.json), and lwh-config/lwh-report skills.",
   "author": {
     "name": "LEAPWare-Software"
   },
   "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "LEAPWare Helm",
-    "shortDescription": "Token-policy reporting for this session (reporting-only on Codex).",
-    "longDescription": "lwh makes an AI coding session's spend rules mechanical. On Claude Code it also enforces via a hook; on Codex it currently ships reporting-only (see docs/install-codex.md) — the same policy engine, surfaced through the lwh-config and lwh-report skills.",
+    "shortDescription": "Token-policy enforcement for this session.",
+    "longDescription": "lwh makes an AI coding session's spend rules mechanical. Both the Claude Code and Codex plugins enforce via a PreToolUse hook backed by the same lwh_core policy engine, with lwh-config and lwh-report skills for inspecting and previewing policy.",
     "developerName": "LEAPWare-Software",
     "category": "Productivity",
     "capabilities": [],
