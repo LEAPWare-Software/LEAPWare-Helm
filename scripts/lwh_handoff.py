@@ -7,8 +7,14 @@ generated block; everything else in HANDOFF.md is prose a human/agent
 wrote by hand and this script never touches.
 
 Usage:
-    python scripts/lwh_handoff.py --check   # validate HANDOFF.md, exit 1 on failure
-    python scripts/lwh_handoff.py --write   # regenerate the generated block in place
+    python scripts/lwh_handoff.py --check                      # validate HANDOFF.md, exit 1 on failure
+    python scripts/lwh_handoff.py --write [--cli NAME] [--session ID]
+        # regenerate the generated block in place. --cli and --session
+        # record which CLI/session wrote this handoff and its own id, so a
+        # reader can tell which session last re-derived state; both are
+        # free-form strings and optional (default "unknown" / an
+        # auto-generated timestamp-based id) -- this script does not
+        # validate them against any external identity source.
 
 Stdlib only. Cross-platform (no shell strings, argv lists to subprocess).
 No network calls other than what `gh` itself performs; --check never
@@ -19,6 +25,7 @@ for read-only validation of the file shape.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -26,6 +33,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 HANDOFF_PATH = REPO_ROOT / "HANDOFF.md"
+PROOF_DIR = REPO_ROOT / "proof"
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
 
 SIZE_CAP_BYTES = 6000
 
@@ -97,12 +109,47 @@ def _utc_now_iso() -> str:
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
-def _generate_block() -> str:
+def _proof_state_lines() -> list[str]:
+    """One line per proof/*.json deliverable: id and PROVEN/INVALID/reason.
+
+    Reuses scripts/lwh_check_proof.py's own record validator so this never
+    drifts from what the `lwh-proof` CI job itself enforces. An empty
+    proof/ directory (the common case today -- see proof/README.md) is not
+    an error; it just means the list is "(none yet)".
+    """
+    import lwh_check_proof  # local import: only --write needs this, --check must not
+
+    if not PROOF_DIR.is_dir():
+        return ["(none yet)"]
+
+    records = sorted(p for p in PROOF_DIR.glob("*.json") if p.name != "schema.json")
+    if not records:
+        return ["(none yet)"]
+
+    lines: list[str] = []
+    for path in records:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            lines.append(f"- {path.name}: INVALID (bad JSON: {exc})")
+            continue
+        errors = lwh_check_proof._validate_record(path, data)
+        deliverable = data.get("deliverable", path.stem) if isinstance(data, dict) else path.stem
+        if errors:
+            lines.append(f"- {deliverable}: INVALID ({errors[0]})")
+        else:
+            lines.append(f"- {deliverable}: PROVEN (commit {data.get('commit')})")
+    return lines
+
+
+def _generate_block(cli: str = "unknown", session: str = "unknown") -> str:
     """Build the text between BEGIN_MARKER and END_MARKER from git/gh state.
 
     Every value here is re-derived live; nothing is carried over from a
     previous run. gh calls degrade to "unavailable" rather than failing
-    the whole regeneration, since --write may run without gh auth.
+    the whole regeneration, since --write may run without gh auth. `cli`
+    and `session` are supplied by the caller (`--cli`/`--session`), not
+    derived -- see the module docstring for why.
     """
     main_sha = _run_git(["rev-parse", "origin/main"]) or _run_git(["rev-parse", "main"]) or "unknown"
     generated_at = _utc_now_iso()
@@ -127,9 +174,14 @@ def _generate_block() -> str:
         "",
         f"Generated: {generated_at}",
         f"main SHA: {main_sha}",
+        f"CLI: {cli}",
+        f"Session: {session}",
         "",
         "Open PRs:",
         pr_list.strip() if pr_list.strip() else "(none)",
+        "",
+        "Deliverable proof state (from proof/):",
+        *_proof_state_lines(),
         "",
         END_MARKER,
     ]
@@ -185,7 +237,7 @@ def cmd_check() -> int:
     return 0
 
 
-def cmd_write() -> int:
+def cmd_write(cli: str = "unknown", session: str = "unknown") -> int:
     if not HANDOFF_PATH.exists():
         print(f"FAIL: {HANDOFF_PATH} does not exist; cannot regenerate a block into nothing", file=sys.stderr)
         return 1
@@ -195,7 +247,7 @@ def cmd_write() -> int:
         return 1
     begin_idx = text.index(BEGIN_MARKER)
     end_idx = text.index(END_MARKER) + len(END_MARKER)
-    new_block = _generate_block().rstrip("\n")
+    new_block = _generate_block(cli=cli, session=session).rstrip("\n")
     new_text = text[:begin_idx] + new_block + text[end_idx:]
     HANDOFF_PATH.write_text(new_text, encoding="utf-8", newline="\n")
     errors = _validate(new_text)
@@ -212,11 +264,17 @@ def main(argv: list[str] | None = None) -> int:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--check", action="store_true", help="validate HANDOFF.md, exit 1 on failure")
     group.add_argument("--write", action="store_true", help="regenerate the generated block in place")
+    parser.add_argument(
+        "--cli", default="unknown", help="which CLI is writing this handoff, e.g. claude or codex"
+    )
+    parser.add_argument(
+        "--session", default="unknown", help="this session's own id, for the generated block"
+    )
     args = parser.parse_args(argv)
 
     if args.check:
         return cmd_check()
-    return cmd_write()
+    return cmd_write(cli=args.cli, session=args.session)
 
 
 if __name__ == "__main__":

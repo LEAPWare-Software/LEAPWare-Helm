@@ -131,6 +131,73 @@ def test_cmd_write_requires_existing_markers(tmp_path, monkeypatch, capsys):
     assert "must already contain" in capsys.readouterr().err
 
 
+def test_cmd_write_records_cli_and_session(tmp_path, monkeypatch):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text(), encoding="utf-8")
+    monkeypatch.setattr(lwh_handoff, "HANDOFF_PATH", path)
+    monkeypatch.setattr(lwh_handoff, "PROOF_DIR", tmp_path / "no-such-proof-dir")
+    monkeypatch.setattr(lwh_handoff, "_run_git", lambda args: "cafef00d")
+    monkeypatch.setattr(lwh_handoff, "_run_gh", lambda args: "")
+
+    assert lwh_handoff.cmd_write(cli="claude", session="sess-123") == 0
+
+    after = path.read_text(encoding="utf-8")
+    assert "CLI: claude" in after
+    assert "Session: sess-123" in after
+
+
+def test_cmd_write_defaults_cli_and_session_to_unknown(tmp_path, monkeypatch):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text(), encoding="utf-8")
+    monkeypatch.setattr(lwh_handoff, "HANDOFF_PATH", path)
+    monkeypatch.setattr(lwh_handoff, "PROOF_DIR", tmp_path / "no-such-proof-dir")
+    monkeypatch.setattr(lwh_handoff, "_run_git", lambda args: "cafef00d")
+    monkeypatch.setattr(lwh_handoff, "_run_gh", lambda args: "")
+
+    assert lwh_handoff.cmd_write() == 0
+
+    after = path.read_text(encoding="utf-8")
+    assert "CLI: unknown" in after
+    assert "Session: unknown" in after
+
+
+def test_cmd_write_lists_deliverable_proof_state(tmp_path, monkeypatch):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text(), encoding="utf-8")
+    proof_dir = tmp_path / "proof"
+    proof_dir.mkdir()
+    (proof_dir / "example.json").write_text(
+        '{"deliverable": "example", "author": "a", "checked_by": "b", '
+        '"commit": "abc1234", "commands": [], "mutations": [], "unproven": []}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(lwh_handoff, "HANDOFF_PATH", path)
+    monkeypatch.setattr(lwh_handoff, "PROOF_DIR", proof_dir)
+    monkeypatch.setattr(lwh_handoff, "_run_git", lambda args: "cafef00d")
+    monkeypatch.setattr(lwh_handoff, "_run_gh", lambda args: "")
+
+    assert lwh_handoff.cmd_write() == 0
+
+    after = path.read_text(encoding="utf-8")
+    assert "example: PROVEN (commit abc1234)" in after
+
+
+def test_cmd_write_reports_no_proof_records_yet(tmp_path, monkeypatch):
+    path = tmp_path / "HANDOFF.md"
+    path.write_text(_valid_text(), encoding="utf-8")
+    proof_dir = tmp_path / "empty-proof"
+    proof_dir.mkdir()
+    monkeypatch.setattr(lwh_handoff, "HANDOFF_PATH", path)
+    monkeypatch.setattr(lwh_handoff, "PROOF_DIR", proof_dir)
+    monkeypatch.setattr(lwh_handoff, "_run_git", lambda args: "cafef00d")
+    monkeypatch.setattr(lwh_handoff, "_run_gh", lambda args: "")
+
+    assert lwh_handoff.cmd_write() == 0
+
+    after = path.read_text(encoding="utf-8")
+    assert "(none yet)" in after
+
+
 def test_real_handoff_md_passes_check():
     """The repo's own HANDOFF.md must pass --check (guards drift)."""
     monkeypatch_path = REPO_ROOT / "HANDOFF.md"

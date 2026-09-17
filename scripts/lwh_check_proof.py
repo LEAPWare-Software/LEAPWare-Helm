@@ -41,7 +41,14 @@ REQUIRED_COMMAND = ("argv", "exit", "expect_exit", "tail", "sha256")
 
 def _validate_record(path: Path, data: object) -> list[str]:
     errors: list[str] = []
-    rel = path.relative_to(REPO_ROOT)
+    try:
+        rel = path.relative_to(REPO_ROOT)
+    except ValueError:
+        # Not under REPO_ROOT (e.g. a test's own tmp_path proof/ directory,
+        # or lwh_handoff.py's PROOF_DIR monkeypatched for a test) -- fall
+        # back to the path as given rather than raising; this function's
+        # job is validating shape, not enforcing where the file lives.
+        rel = path
 
     if not isinstance(data, dict):
         return [f"{rel}: top-level JSON must be an object"]

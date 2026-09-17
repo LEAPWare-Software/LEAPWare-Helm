@@ -42,11 +42,19 @@ step *n* is done and proven.
 
 <!-- lwh-handoff:begin -->
 
-Generated: (run `python scripts/lwh_handoff.py --write` to fill this in)
-main SHA: (unknown)
+Generated: 2026-09-17 13:32 UTC
+main SHA: 6ac5c2b79fbd33bd8d43a59c5d256949022be7ab
+CLI: claude
+Session: lwh-d1b-20260917T133241Z
 
 Open PRs:
-(unavailable: run --write with `gh` authenticated)
+#4 fix(build): commit vendor/ trees, pin line endings via .gitattributes (fix/lwh-d0-vendor-committed)
+#3 chore(deps): Bump actions/checkout from 5 to 7 (dependabot/github_actions/actions/checkout-7)
+#2 chore(deps): Bump actions/setup-python from 6 to 7 (dependabot/github_actions/actions/setup-python-7)
+#1 chore(deps): Bump softprops/action-gh-release from 2 to 3 (dependabot/github_actions/softprops/action-gh-release-3)
+
+Deliverable proof state (from proof/):
+(none yet)
 
 <!-- lwh-handoff:end -->
 
