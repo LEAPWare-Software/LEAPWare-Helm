@@ -52,7 +52,15 @@ jobs:
 
       - name: lwh-commit-identity (LEAPWare or an allow-listed bot only)
         if: github.event_name == 'pull_request'
-        run: python scripts/lwh_check_commit_identity.py --base origin/${{ github.base_ref }} --head HEAD
+        # github.event.pull_request.*.sha, not origin/<base>..HEAD: a
+        # pull_request checkout's HEAD is the synthetic refs/pull/N/merge
+        # commit, authored under the triggering GitHub App's own identity,
+        # not a real commit on the PR branch -- checking that range flags
+        # the App itself as an offending author on every PR run.
+        run: >-
+          python scripts/lwh_check_commit_identity.py
+          --base ${{ github.event.pull_request.base.sha }}
+          --head ${{ github.event.pull_request.head.sha }}
 
   lwh-portable:
     strategy:
