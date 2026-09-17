@@ -14,7 +14,7 @@
       "exit": 0,
       "expect_exit": 0,
       "tail": [
-        "OK: C:\\kstmp\\claude\\C--Users-manny-ramos-leapware-hq-leapware-financial-leapware-cpt\\4aacb482-5b92-49dc-aaa3-f8b94d3fe19d\\scratchpad\\lwh-clean-test\\HANDOFF.md passes all checks (4023 bytes)"
+        "OK: [redacted local scratch path]\\lwh-clean-test\\HANDOFF.md passes all checks (4023 bytes)"
       ],
       "sha256": "c748326030f16e51acda0b78c2d2a32dbbb59e3245d043654f9483e30a595d33"
     },
