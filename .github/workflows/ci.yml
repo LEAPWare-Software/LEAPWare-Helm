@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        python-version: ["3.10", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dev dependencies
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Unit / adapter / conformance tests
+        run: python -m pytest -q
+
+      - name: Vendor drift check (scripts/build.py --check)
+        run: python scripts/build.py --check
+
+      - name: Build vendor trees for validators
+        run: python scripts/build.py
+
+      - name: Validate Claude Code plugin
+        run: python scripts/validate_claude_plugin.py
+
+      - name: Validate Codex plugin
+        run: python scripts/validate_codex_plugin.py
