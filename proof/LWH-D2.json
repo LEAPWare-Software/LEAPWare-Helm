@@ -1,0 +1,67 @@
+{
+  "deliverable": "LWH-D2",
+  "author": "claude implementer (sonnet)",
+  "checked_by": "independent verifier (claude, sonnet)",
+  "commit": "8b24f3d0a51442d5b9915f400d138d3563a31fad",
+  "commands": [
+    {
+      "argv": [
+        "py",
+        "-3",
+        "scripts/lwh_handoff.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "OK: C:\\kstmp\\claude\\C--Users-manny-ramos-leapware-hq-leapware-financial-leapware-cpt\\4aacb482-5b92-49dc-aaa3-f8b94d3fe19d\\scratchpad\\lwh-clean-test\\HANDOFF.md passes all checks (4023 bytes)"
+      ],
+      "sha256": "c748326030f16e51acda0b78c2d2a32dbbb59e3245d043654f9483e30a595d33"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "-m",
+        "pytest",
+        "tests/core/test_lwh_handoff.py",
+        "-q"
+      ],
+      "exit": 0,
+      "expect_exit": 0,
+      "tail": [
+        "........................                                                 [100%]",
+        "24 passed in 0.22s"
+      ],
+      "sha256": "8bf157c502c9d8e22d147e4c7e3b637462d1823ca42c4cb614507762498b3352"
+    },
+    {
+      "argv": [
+        "py",
+        "-3",
+        "scripts/lwh_handoff.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expect_exit": 1,
+      "tail": [
+        "FAIL: forbidden pattern found (absolute path): '[A-Za-z]:\\\\\\\\'"
+      ],
+      "sha256": "eb5a70e31770bc841a6e8da641a548ebca34923886c8e55aec92c63fdef6e1e7"
+    }
+  ],
+  "mutations": [
+    "HANDOFF.md",
+    "scripts/lwh_handoff.py",
+    "docs/handoff-protocol.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/owner-directives.md",
+    "docs/requirements/approach.md",
+    "tests/core/test_lwh_handoff.py"
+  ],
+  "unproven": [
+    "PR #4 bundles D0+D1+D2 work in one branch/commit set; the mutations[] list above is the D2-relevant subset of a much larger diff (130+ files).",
+    "Did not exercise every one of the 16 owner directives against runtime behavior individually -- only confirmed all 16 are present as text in docs/requirements/owner-directives.md and spot-checked directives 1-4, 8-12 against actual repo/CI/ruleset state elsewhere in this proof set."
+  ]
+}
