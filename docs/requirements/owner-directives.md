@@ -47,3 +47,11 @@ every functional requirement back to one of these.
     overrun handling.
 16. Out of scope for lwh: Proof of Completion CI enforcement for other
     repos (separate product).
+17. LWH displays and manages the status-line usage segment (context %, 5-hour
+    % with time to reset, 7-day % with reset date, e.g. `ctx 33%  5h 10%
+    (2h16m)  7d 2% (09/24 1am)`) plus its own GREEN/RED health light, taken
+    over from LW-Watchtower. It must stay short, work on any laptop for
+    Claude and Codex, and keep producing the usage readings other tools rely
+    on (the RUNWAY/LWR gate reads them) so nothing breaks during the move;
+    Watchtower's display is removed only after LWH's is proven. LWR shows
+    only its own short session tag.
