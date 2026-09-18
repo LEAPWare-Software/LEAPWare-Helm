@@ -18,7 +18,8 @@ follows.
 ## In flight
 
 The plan, in order. Do not skip a step; do not start step *n+1* before
-step *n* is done and proven.
+step *n* is done and proven. See `docs/next-session-plan.md` for the
+full sequenced plan (owner decisions through GitHub Apps and 1.0.0).
 
 1. Work from this repo only. Clone fresh on any machine; no dependence on
    the local environment. **SACRED.**
@@ -49,10 +50,10 @@ step *n* is done and proven.
 
 <!-- lwt-handoff:begin -->
 
-Generated: 2026-09-18 17:55 UTC
+Generated: 2026-09-18 18:03 UTC
 main SHA: 07b055e74e9815d1ef603ddc6ae060558fc80615
 CLI: claude
-Session: docs-session-handoff-durable
+Session: docs-next-session-plan
 
 Open PRs:
 #8 fix(privacy): genericize hard-coded private-name needles (fix/genericize-private-names)
