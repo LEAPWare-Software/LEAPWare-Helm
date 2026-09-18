@@ -55,3 +55,9 @@ every functional requirement back to one of these.
     on (the RUNWAY/LWR gate reads them) so nothing breaks during the move;
     Watchtower's display is removed only after LWT's is proven. LWR shows
     only its own short session tag.
+18. (2026-09-17) Public repos use GitHub-hosted runners only, never
+    self-hosted or local; add a CI check that fails on any `runs-on`
+    value other than a GitHub-hosted runner, proven by breaking it on
+    purpose.
+19. (2026-09-17) Worktrees live only under `.worktrees/<branch>`, never
+    as sibling folders.
