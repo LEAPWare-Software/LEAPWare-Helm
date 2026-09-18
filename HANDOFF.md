@@ -27,10 +27,13 @@ step *n* is done and proven.
    was cleaned by owner decision) merged through the merge queue, sha
    `ba4f667d37c55f4c809f843ac70d730e9b961e9a`. The repo is now worked
    from its own Claude session opened in its own folder.
-3. Implement the hosted-runner-only CI check (directive a in
-   `docs/requirements/owner-directives.md`): a CI check that fails on any
-   `runs-on` value other than a GitHub-hosted runner, proven by breaking
-   it on purpose.
+3. NOT STARTED — implement the hosted-runner-only CI check (directive 9
+   in `docs/requirements/owner-directives.md`): a CI check that fails on
+   any `runs-on` value other than a GitHub-hosted runner, proven by
+   breaking it on purpose. This is the next real deliverable, but it is
+   blocked behind two owner decisions that are asked and not yet
+   answered — see `docs/open-decisions.md` (missing dual-CTO review
+   records, and the `other`-path dead zone in `scripts/lwt_lanes.py`).
 4. Create the two GitHub Apps (`lwt-claude`, `lwt-codex`) from the
    committed manifests in `.github/apps/`, using a browser-enabled
    session. Install each on this repo only. Store each private key in the
@@ -46,20 +49,19 @@ step *n* is done and proven.
 
 <!-- lwt-handoff:begin -->
 
-Generated: 2026-09-17 14:09 UTC
-main SHA: 6ac5c2b79fbd33bd8d43a59c5d256949022be7ab
+Generated: 2026-09-18 17:55 UTC
+main SHA: 07b055e74e9815d1ef603ddc6ae060558fc80615
 CLI: claude
-Session: lwt-bootstrap-pr-cleanup
+Session: docs-session-handoff-durable
 
 Open PRs:
-#5 Bootstrap LWT repository setup (D0-D2) (lwt-bootstrap)
-#4 fix(build): commit vendor/ trees, pin line endings via .gitattributes (fix/lwt-d0-vendor-committed)
-#3 chore(deps): Bump actions/checkout from 5 to 7 (dependabot/github_actions/actions/checkout-7)
-#2 chore(deps): Bump actions/setup-python from 6 to 7 (dependabot/github_actions/actions/setup-python-7)
-#1 chore(deps): Bump softprops/action-gh-release from 2 to 3 (dependabot/github_actions/softprops/action-gh-release-3)
+#8 fix(privacy): genericize hard-coded private-name needles (fix/genericize-private-names)
+#7 docs(handoff): bootstrap DONE, hosted-runner-only + worktree-location directives (docs/session-handoff)
 
 Deliverable proof state (from proof/):
-(none yet)
+- LWT-D0: PROVEN (commit a6aa3b74b356e9dd92052d9aa6c66409afaa4ada)
+- LWT-D1: PROVEN (commit a6aa3b74b356e9dd92052d9aa6c66409afaa4ada)
+- LWT-D2: PROVEN (commit a6aa3b74b356e9dd92052d9aa6c66409afaa4ada)
 
 <!-- lwt-handoff:end -->
 
@@ -102,3 +104,7 @@ the plan; the commands above are the facts.
   degrades to "(unavailable)" rather than failing when `gh` is missing or
   unauthenticated, so a green `--check` does not by itself prove the PR
   list is current — re-read the "Generated" timestamp.
+- Root-level files and non-lane `tests/` paths classify as `other` in
+  `scripts/lwt_lanes.py` and no agent lane may write them — enforced at
+  write time by `scripts/lwt_check_lane_write.py`, not only in CI. See
+  `docs/open-decisions.md`.
